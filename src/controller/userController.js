@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../models/user");
-const jsonWebToken = require("../utils/jwt");
+const { generateJwtToken } = require("../utils/jwt");
+const cartModel = require("../models/cart");
 
 //  Add new data
 exports.signup = async (req, res) => {
@@ -39,7 +40,12 @@ exports.updatedata = async (req, res) => {
 //  Delete data
 exports.deletedata = async (req, res) => {
   try {
+    // Delete the user from the user collection
     await userModel.findByIdAndDelete(req.userId);
+
+    // delete all carts that contain the deleted user
+    await cartModel.findOneAndDelete({ userId: req.userId });
+
     res.status(200).send("data deleted successfully");
   } catch (err) {
     res.status(400).send(err.message + "Data Deletion Unsuccessful");
@@ -65,7 +71,7 @@ exports.login = async (req, res) => {
 
     if (passwordValidation) {
       // Generate JWT token
-      const token = jsonWebToken.generateJwtToken(
+      const token = generateJwtToken(
         { userId: userData._id },
         {
           expiresIn: "1d",
@@ -80,7 +86,6 @@ exports.login = async (req, res) => {
       res.status(401).send("Invalid password");
     }
   } catch (error) {
-    console.log("Error in login");
     res.send(`Error in login :- ${error}`);
   }
 };

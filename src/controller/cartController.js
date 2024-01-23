@@ -32,7 +32,6 @@ exports.addToCart = async (req, res) => {
       //Resolve all promises at one time
       await Promise.all(promises);
     } else {
-      console.log("hii");
       await cartModel.create({ userId, products });
     }
 
@@ -56,7 +55,6 @@ exports.removeFromCart = async (req, res) => {
 // View the user data from cart
 exports.findCart = async (req, res) => {
   try {
-    console.log(req.params.userId);
     const cartData = await cartModel.aggregate([
       {
         $match: {
@@ -80,7 +78,6 @@ exports.findCart = async (req, res) => {
         },
       },
     ]);
-    console.log(cartData);
     res.status(200).send(cartData);
   } catch (err) {
     res.send(err.message + "Fetching data ").status(400);
@@ -138,4 +135,23 @@ exports.reduceQuantity = async (req, res) => {
     console.error("Error in Decrement the count of item from cart:", err);
     res.status(500).json({ err: "Internal Server Error" });
   }
+};
+
+// Automatically Delete cart if it is empty cart
+exports.checkAndDeleteEmptyCart = async () => {
+  const cart = await cartModel.aggregate([
+    {
+      $match: {
+        products: { $exists: true },
+        $expr: { $eq: [{ $size: "$products" }, 0] },
+      },
+    },
+  ]);
+
+  const promises = cart.map(async (products) => {
+    if (products) {
+      await cartModel.deleteOne({ _id: products._id.toString() });
+    }
+  });
+  await Promise.all(promises);
 };

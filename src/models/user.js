@@ -40,30 +40,25 @@ const userSchema = new schema({
   },
 });
 // To Encrypt Password while adding new data
-userSchema.pre("save", async function (value) {
+userSchema.pre("save", async function (next) {
   const data = this;
   if (!data.isModified("password")) {
-    return value();
+    return next();
   }
   try {
     data.password = await bcrypt.hash(data.password, saltRounds);
   } catch (err) {
-    return value(err);
+    return next(err);
   }
 });
 
 // To Encrypt Password after updating password data
-userSchema.pre("findOneAndUpdate", async function (value) {
+userSchema.pre("findOneAndUpdate", async function (next) {
   const password = this.get("password");
-  // console.log(password);
-  // const data=this;
-  // console.log(data._update.password, "Password data");
-
   try {
-    // console.log(hashPassword)
     this.set("password", await bcrypt.hash(password, saltRounds));
   } catch (err) {
-    return value(err);
+    return next(err);
   }
 });
 

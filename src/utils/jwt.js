@@ -5,7 +5,7 @@ exports.generateJwtToken = (payload, options) => {
   try {
     return jwt.sign(payload, appConfig.jwtKey, options);
   } catch (err) {
-    console.log("Error while generating token", err);
+    console.error("Error while generating token", err);
     throw err;
   }
 };
