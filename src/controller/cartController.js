@@ -137,21 +137,36 @@ exports.reduceQuantity = async (req, res) => {
   }
 };
 
-// Automatically Delete cart if it is empty cart
+// Automatically Delete cart if it is an empty cart
 exports.checkAndDeleteEmptyCart = async () => {
-  const cart = await cartModel.aggregate([
-    {
-      $match: {
-        products: { $exists: true },
-        $expr: { $eq: [{ $size: "$products" }, 0] },
+  try {
+    // Find carts with no products
+    const emptyCarts = await cartModel.aggregate([
+      {
+        $match: {
+          products: { $exists: true, $size: 0 }, // Match carts with no products
+        },
       },
-    },
-  ]);
+      {
+        $project: {
+          _id: 1, // Project only the _id field for optimization
+        },
+      },
+    ]);
 
-  const promises = cart.map(async (products) => {
-    if (products) {
-      await cartModel.deleteOne({ _id: products._id.toString() });
+    // Extract cart IDs to be deleted
+    const cartIdsToDelete = emptyCarts.map(({ _id }) => _id.toString());
+
+    // Delete carts with no products
+    if (cartIdsToDelete.length > 0) {
+      const deleteResult = await cartModel.deleteMany({
+        _id: { $in: cartIdsToDelete },
+      });
+      console.log(`${deleteResult.deletedCount} cart(s) deleted`);
+    } else {
+      console.log("No empty carts found");
     }
-  });
-  await Promise.all(promises);
+  } catch (error) {
+    console.error("Error deleting empty carts:", error);
+  }
 };

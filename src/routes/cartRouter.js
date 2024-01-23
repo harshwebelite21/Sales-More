@@ -13,7 +13,7 @@ route.delete("/:userId", cartController.removeFromCart);
 route.patch("/items/:productId", cartController.removeSpecificItem);
 
 // Decrement the quantity from cart
-route.patch("/reduce-quantity/:productId",cartController.reduceQuantity)
+route.patch("/reduce-quantity/:productId", cartController.reduceQuantity);
 
 // View the user specific Cart
 route.get("/:userId", cartController.findCart);

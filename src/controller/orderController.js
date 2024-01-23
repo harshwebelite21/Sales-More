@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const cartModel = require("../models/cart");
 const productModel = require("../models/product");
 const orderModel = require("../models/order");
@@ -54,7 +53,11 @@ exports.checkOut = async (req, res) => {
 // View the user data from Order
 exports.getOrderHistory = async (req, res) => {
   try {
-    const orderData = await orderModel.findOne({ userId: req.userId }).lean();
+    const orderData = await orderModel
+      .findOne({ userId: req.userId })
+      .populate("userId")
+      .populate("products.productId")
+      .lean();
     res.status(200).send(orderData);
   } catch (err) {
     res.send(err.message + "Fetching data ").status(400);
