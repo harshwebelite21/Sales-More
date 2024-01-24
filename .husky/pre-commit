@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "Running pre-commit hook"
+# npm run lint-staged
+yarn lint-staged
+
+
+# chmod +x .husky/*
