@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 const saltRounds = 10;
 
-const userSchema = new schema({
+const userSchema = new Schema({
   name: {
     type: String,
     required: true,

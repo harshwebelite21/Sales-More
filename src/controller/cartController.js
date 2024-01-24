@@ -29,7 +29,7 @@ exports.addToCart = async (req, res) => {
         }
       });
 
-      //Resolve all promises at one time
+      // Resolve all promises at one time
       await Promise.all(promises);
     } else {
       await cartModel.create({ userId, products });

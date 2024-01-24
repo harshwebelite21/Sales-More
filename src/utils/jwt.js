@@ -12,10 +12,10 @@ exports.generateJwtToken = (payload, options) => {
 
 exports.verifyJwtToken = (cookieToken) => {
   try {
-    jwt.verify(cookieToken, appConfig.jwtKey);
+    return jwt.verify(cookieToken, appConfig.jwtKey);
   } catch (err) {
     console.error("Error while verifying token:", err);
-    return res.status(401).json({ err: "Invalid JWT token." });
+    return false
   }
 };
 

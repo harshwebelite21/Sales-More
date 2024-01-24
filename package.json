@@ -6,7 +6,8 @@
   "scripts": {
     "test": "na",
     "start": "nodemon src/app.js",
-    "eslint": "npx eslint ."
+    "eslint": "npx eslint .",
+    "precommit": "npm run eslint"
   },
   "author": "harsh",
   "license": "ISC",
