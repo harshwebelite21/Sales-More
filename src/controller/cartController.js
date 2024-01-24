@@ -14,7 +14,7 @@ exports.addToCart = async (req, res) => {
     if (availableUser) {
       // To save the all userId which is saved in user's specific cart
       const allProductIdAvilableInCart = availableUser.products.map(
-        ({ productId }) => productId.toString()
+        ({ productId }) => productId.toString(),
       );
 
       // Create promises for all changes and last they all are resolved
@@ -22,7 +22,7 @@ exports.addToCart = async (req, res) => {
         if (allProductIdAvilableInCart.includes(element.productId)) {
           await cartModel.findOneAndUpdate(
             { userId, "products.productId": element.productId },
-            { $inc: { "products.$.quantity": element.quantity } }
+            { $inc: { "products.$.quantity": element.quantity } },
           );
         } else {
           await cartModel.updateOne({ userId }, { $push: { products } });
@@ -97,7 +97,7 @@ exports.removeSpecificItem = async (req, res) => {
           "products.productId": productId,
         },
         { $pull: { products: { productId } } },
-        { new: true }
+        { new: true },
       )
       .populate("userId");
     if (!updatedCart || updatedCart.modifiedCount < 1) {
@@ -124,7 +124,7 @@ exports.reduceQuantity = async (req, res) => {
         {
           $inc: { "products.$.quantity": -1 },
         },
-        { new: true }
+        { new: true },
       )
       .populate("userId");
     if (!decrementedData || decrementedData.modifiedCount < 1) {
