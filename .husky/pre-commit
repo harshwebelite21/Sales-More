@@ -1,4 +1,5 @@
 #!/bin/sh
+echo "Running pre-commit hook"
 npm run eslint
 
-chmod +x .husky/pre-commit
+git update-index --chmod=+x .husky/pre-commit
