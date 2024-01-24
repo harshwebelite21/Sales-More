@@ -1,0 +1,4 @@
+#!/bin/sh
+npm run eslint
+
+chmod +x .husky/pre-commit
