@@ -13,6 +13,6 @@ route.post("/", productController.addProducts);
 route.put("/:productId", productController.updateProduct);
 
 // Delete Product
-route.post("/:productId", productController.deleteProduct);
+route.delete("/:productId", productController.deleteProduct);
 
 module.exports = route;
