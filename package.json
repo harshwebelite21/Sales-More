@@ -11,15 +11,17 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "npm run pre-commit"
     }
   },
   "lint-staged": {
     "*.js": [
       "npm run prettier:fix",
-      "npm run lint"
+      "npm run lint",
+      "git add ."
     ]
   },
+  "pre-commit": "npm run lint-staged && git diff --cached --exit-code --quiet || echo 'Prevented an empty git commit!' && exit 1",
   "author": "harsh",
   "license": "ISC",
   "dependencies": {
