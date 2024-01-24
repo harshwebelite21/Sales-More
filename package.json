@@ -6,7 +6,8 @@
   "scripts": {
     "test": "na",
     "start": "nodemon src/app.js",
-    "eslint": "npx eslint ."
+    "lint": "npx eslint .",
+    "prettier:fix": "prettier --write \"src/**/*.js\""
   },
   "husky": {
     "hooks": {
@@ -16,7 +17,8 @@
   "lint-staged": {
     "*.js": [
       "npm run lint",
-      "git add"
+      "npm run prettier:fix"
+      
     ]
   },
   "author": "harsh",
