@@ -15,7 +15,7 @@ exports.verifyJwtToken = (cookieToken) => {
     return jwt.verify(cookieToken, appConfig.jwtKey);
   } catch (err) {
     console.error("Error while verifying token:", err);
-    return false
+    return false;
   }
 };
 

@@ -12,12 +12,12 @@ exports.isAuthenticated = (req, res, next) => {
         .status(403)
         .json({ error: "Access denied. Token not provided." });
     }
-    const validToken =  verifyJwtToken(cookieToken);
+    const validToken = verifyJwtToken(cookieToken);
 
-    if(!validToken) {
-
+    if (!validToken) {
+      res.send("Invalid Token");
     }
-    
+
     next();
   } catch (err) {
     console.log(err + "Error in Middleware");
