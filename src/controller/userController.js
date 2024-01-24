@@ -29,7 +29,7 @@ exports.updatedata = async (req, res) => {
     const { name, email, birthdate, age, password } = req.body;
     await userModel.findOneAndUpdate(
       { _id: req.userId },
-      { name, email, birthdate, age, password }
+      { name, email, birthdate, age, password },
     );
     res.status(201).send("Data Updated successful");
   } catch (err) {
@@ -66,7 +66,7 @@ exports.login = async (req, res) => {
     // Compare
     const passwordValidation = await bcrypt.compare(
       password,
-      userData.password
+      userData.password,
     );
 
     if (passwordValidation) {
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
         { userId: userData._id },
         {
           expiresIn: "1d",
-        }
+        },
       );
 
       // Setting cookie

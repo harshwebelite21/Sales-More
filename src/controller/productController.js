@@ -30,7 +30,7 @@ exports.updateProduct = async (req, res) => {
     const { name, description, price } = req.body;
     await productModel.findOneAndUpdate(
       { _id: req.params.productId },
-      { name, description, price }
+      { name, description, price },
     );
     res.status(201).send("Data Updated successful In Product");
   } catch (err) {
@@ -55,7 +55,7 @@ exports.deleteProduct = async (req, res) => {
             productId: new mongoose.Types.ObjectId(req.params.productId),
           },
         },
-      }
+      },
     );
 
     // check for if cart is empty then automatically delete the cart

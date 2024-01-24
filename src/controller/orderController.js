@@ -11,13 +11,13 @@ exports.checkOut = async (req, res) => {
         {
           userId: req.userId,
         },
-        { products: 1, _id: 0 }
+        { products: 1, _id: 0 },
       )
       .lean();
 
     // Mapping the the product Id from cart Products
     const allProductId = cartProducts.products.map(
-      (product) => product.productId
+      (product) => product.productId,
     );
 
     // Find the product details from the product Collection which id is in allProductId
@@ -27,7 +27,7 @@ exports.checkOut = async (req, res) => {
     let totalBill = 0;
     allProduct.forEach(({ _id, price }) => {
       const matchingProduct = cartProducts.products.find(({ productId }) =>
-        _id.equals(productId)
+        _id.equals(productId),
       );
 
       if (matchingProduct) {
