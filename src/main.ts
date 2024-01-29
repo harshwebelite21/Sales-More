@@ -1,11 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+import { appConfig } from './config/appConfig';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  await app.listen(appConfig.port);
 }
 bootstrap().catch(() => {
   console.log('Error in Server Creation');

@@ -1,10 +1,10 @@
-import * as mongoose from 'mongoose';
-import * as bcrypt from 'bcrypt';
+import {hash} from 'bcrypt';
+import { Document, Schema } from 'mongoose';
 
 const saltRounds = 10;
 
 // Define the user schema
-export const UserSchema = new mongoose.Schema({
+export const UserSchema = new Schema({
   // User name field
   name: {
     type: String,
@@ -56,7 +56,7 @@ UserSchema.pre('save', async function (next) {
   }
   try {
     // Encrypt the password using bcrypt
-    data.password = await bcrypt.hash(data.password, saltRounds);
+    data.password = await hash(data.password, saltRounds);
   } catch (err) {
     next(err);
   }
@@ -67,14 +67,14 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
   const password = this.get('password');
   try {
     // Encrypt the updated password using bcrypt
-    this.set('password', await bcrypt.hash(password, saltRounds));
+    this.set('password', await hash(password, saltRounds));
   } catch (err) {
     next(err);
   }
 });
 
 // User interface extending mongoose.Document
-export interface User extends mongoose.Document {
+export interface User extends Document {
   name: string;
   email: string;
   password: string;

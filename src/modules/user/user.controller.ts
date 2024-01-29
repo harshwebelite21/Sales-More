@@ -6,11 +6,11 @@ import {
   Param,
   Post,
   Put,
-  Req,
   Res,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { UserService } from './user.service';
+import { User } from './user.model';
 
 @Controller('user')
 export class UserController {
@@ -18,15 +18,10 @@ export class UserController {
 
   // Login route
   @Post('/login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<string> {
+  async login(@Body() body: User, @Res() res: Response): Promise<string> {
     try {
       // Attempt to login and obtain a token from the service
-      const token = await this.userService.login(email, password);
+      const token = await this.userService.login(body.email, body.password);
 
       // Assuming login is successful and token is generated
       if (token) {
@@ -34,7 +29,6 @@ export class UserController {
         res.cookie('jwtToken', token, { httpOnly: true });
 
         // Send a success response
-        res.send('Login Successful');
         return 'Login Successful';
       } else {
         // If login fails, return an error message
@@ -49,7 +43,7 @@ export class UserController {
 
   // Logout route
   @Get('/logout')
-  async logout(@Res() res: Response, @Req() req: Request) {
+  async logout(@Res() res: Response) {
     // Clear the cookie by setting an empty value and an expired date
     this.userService.logout(res);
 
@@ -59,33 +53,26 @@ export class UserController {
 
   // Signup route
   @Post('/signup')
-  async signup(
-    @Body('name') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('age') age: number,
-    @Body('birthdate') birthdate: Date,
-  ) {
-    return await this.userService.signUp(name, email, password, age, birthdate);
+  async signup(@Body() body: User) {
+    return await this.userService.signUp(
+      body.name,
+      body.email,
+      body.password,
+      body.age,
+      body.birthdate,
+    );
   }
 
   // Update User route
   @Put('/:userId')
-  async updateUser(
-    @Param('userId') userId: string,
-    @Body('name') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('age') age: number,
-    @Body('birthdate') birthdate: Date,
-  ) {
+  async updateUser(@Param('userId') userId: string, @Body() body: User) {
     return await this.userService.updateUser(
       userId,
-      name,
-      email,
-      password,
-      age,
-      birthdate,
+      body.name,
+      body.email,
+      body.password,
+      body.age,
+      body.birthdate,
     );
   }
 
