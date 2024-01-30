@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './products.model';
+import { UpdateProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -12,55 +13,31 @@ export class ProductService {
 
   // Get all products
   async getAllProducts(): Promise<string> {
-    try {
-      const productData = await this.productModel.find().lean();
-      return `${JSON.stringify(productData)}`;
-    } catch (err) {
-      return `"Error in fetching products: ${err.message}"`;
+    const productData = await this.productModel.find();
+    if (!productData) {
+      throw Error('Error in Viewing Data');
     }
+    return 'productData';
   }
 
   // Add product data
-  async addProducts(
-    name: string,
-    description: string,
-    price: number,
-  ): Promise<string> {
-    try {
-      await this.productModel.create({ name, description, price });
-      console.log('data');
-
-      return 'Data added successfully';
-    } catch (err) {
-      return `"Error in data creation: ${err.message}"`;
-    }
+  async addProducts(body): Promise<string> {
+    await this.productModel.create(body);
+    return 'Data added successfully';
   }
 
   // Update product data
   async updateProduct(
-    name: string,
-    description: string,
-    price: number,
+    body: UpdateProductDto,
     productId: string,
   ): Promise<string> {
-    try {
-      await this.productModel.updateOne(
-        { _id: productId },
-        { name, description, price },
-      );
-      return 'Data updated successfully';
-    } catch (err) {
-      return `"Error in updating data: ${err.message}"`;
-    }
+    await this.productModel.updateOne({ _id: productId }, body);
+    return 'Data updated successfully';
   }
 
   // Delete a product
   async deleteProduct(productId: string): Promise<string> {
-    try {
-      await this.productModel.findByIdAndDelete(productId);
-      return 'Data deleted successfully';
-    } catch (err) {
-      return `"Error in deleting data: ${err.message}"`;
-    }
+    await this.productModel.findByIdAndDelete(productId);
+    return 'Data deleted successfully';
   }
 }

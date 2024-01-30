@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ProductService } from './products.service';
+import { AddProductDto, UpdateProductDto } from './dto/product.dto';
 
 @Controller('product')
 export class ProductController {
@@ -15,48 +16,37 @@ export class ProductController {
 
   // Get all products
   @Get('/')
-  async getAllProducts(): Promise<object> {
+  async getAllProducts(): Promise<string> {
     try {
       const products = await this.productService.getAllProducts();
-      return { success: true, data: products };
+      return products;
     } catch (error) {
-      return { success: false, error: error.message };
+      throw Error('Error in Fetching Products');
     }
   }
 
   // Add a new product
   @Post('/')
-  async addProducts(
-    @Body('name') name: string,
-    @Body('description') description: string,
-    @Body('price') price: number,
-  ): Promise<object> {
+  async addProducts(@Body() body: AddProductDto): Promise<object> {
     try {
-      await this.productService.addProducts(name, description, price);
+      await this.productService.addProducts(body);
       return { success: true, message: 'Product added successfully' };
     } catch (error) {
-      return { success: false, error: error.message };
+      throw Error('Error in Adding Product');
     }
   }
 
   // Update product details
-  @Put('/:productId')
+  @Put('/')
   async updateProduct(
     @Param('productId') productId: string,
-    @Body('name') name: string,
-    @Body('description') description: string,
-    @Body('price') price: number,
+    @Body() body: UpdateProductDto,
   ): Promise<object> {
     try {
-      await this.productService.updateProduct(
-        name,
-        description,
-        price,
-        productId,
-      );
+      await this.productService.updateProduct(body, productId);
       return { success: true, message: 'Product updated successfully' };
     } catch (error) {
-      return { success: false, error: error.message };
+      throw Error('Error in Updating data');
     }
   }
 
@@ -67,7 +57,7 @@ export class ProductController {
       await this.productService.deleteProduct(productId);
       return { success: true, message: 'Product deleted successfully' };
     } catch (error) {
-      return { success: false, error: error.message };
+      throw Error('Error in Deleting Product');
     }
   }
 }
