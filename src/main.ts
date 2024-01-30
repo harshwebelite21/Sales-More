@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+import { appConfig } from './config/appConfig';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  // Use the global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  await app.listen(appConfig.port);
 }
 bootstrap().catch(() => {
   console.log('Error in Server Creation');

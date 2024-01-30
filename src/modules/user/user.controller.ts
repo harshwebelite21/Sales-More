@@ -3,14 +3,18 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
-  Req,
   Res,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { UserService } from './user.service';
+import { AuthGuard } from 'src/auth_guard/authGuard';
+import { User, UserLogin, UserUpdate } from './user.model';
+import { GetUserId } from './userId.decorator';
 
 @Controller('user')
 export class UserController {
@@ -18,86 +22,99 @@ export class UserController {
 
   // Login route
   @Post('/login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<string> {
+  @UsePipes(ValidationPipe)
+  async login(@Body() body: UserLogin, @Res() res: Response): Promise<void> {
     try {
       // Attempt to login and obtain a token from the service
-      const token = await this.userService.login(email, password);
-
-      // Assuming login is successful and token is generated
-      if (token) {
-        // Set the token in a cookie
-        res.cookie('jwtToken', token, { httpOnly: true });
-
-        // Send a success response
-        res.send('Login Successful');
-        return 'Login Successful';
-      } else {
-        // If login fails, return an error message
-        return 'Invalid email or password';
+      if (!body) {
+        throw Error('User Data Not Found');
       }
+      const token = await this.userService.login(body);
+
+      // Set the token in a cookie
+      res.cookie('jwtToken', token, { httpOnly: true });
+
+      // Send a success response
+      res.send('Login Successful');
     } catch (error) {
-      // Handle other errors, e.g., service errors
       console.error('Error during login:', error);
-      return 'Internal server error';
+      throw error;
+    }
+  }
+
+  // Signup route
+  @Post('/signup')
+  @UsePipes(ValidationPipe)
+  async signup(@Body() body: User): Promise<string> {
+    try {
+      if (!body) {
+        throw Error('User Data Not Found');
+      }
+      return this.userService.signUp(body);
+    } catch (error) {
+      console.error('Error during signup:', error);
+      throw error;
+    }
+  }
+
+  // Update User route
+  @Put('/')
+  @UseGuards(AuthGuard)
+  async updateUser(
+    @GetUserId() userId: string,
+    @Body() body: UserUpdate,
+  ): Promise<string> {
+    try {
+      if (!userId && !body) {
+        throw Error('UserId and UserData Not Found');
+      }
+      return this.userService.updateUser(userId, body);
+    } catch (error) {
+      console.error('Error during update user:', error);
+      throw error;
+    }
+  }
+
+  // Delete User route
+  @Delete('/')
+  @UseGuards(AuthGuard)
+  async deleteData(@GetUserId() userId: string): Promise<string> {
+    try {
+      if (!userId) {
+        throw Error('UserId Not Found');
+      }
+      return this.userService.deleteData(userId);
+    } catch (error) {
+      console.error('Error during delete data:', error);
+      throw error;
     }
   }
 
   // Logout route
   @Get('/logout')
-  async logout(@Res() res: Response, @Req() req: Request) {
-    // Clear the cookie by setting an empty value and an expired date
-    this.userService.logout(res);
-
-    // Send a success response
-    res.status(200).send('Logout successful');
-  }
-
-  // Signup route
-  @Post('/signup')
-  async signup(
-    @Body('name') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('age') age: number,
-    @Body('birthdate') birthdate: Date,
-  ) {
-    return await this.userService.signUp(name, email, password, age, birthdate);
-  }
-
-  // Update User route
-  @Put('/:userId')
-  async updateUser(
-    @Param('userId') userId: string,
-    @Body('name') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('age') age: number,
-    @Body('birthdate') birthdate: Date,
-  ) {
-    return await this.userService.updateUser(
-      userId,
-      name,
-      email,
-      password,
-      age,
-      birthdate,
-    );
-  }
-
-  // Delete User route
-  @Delete('/:userId')
-  async deleteData(@Param('userId') userId: string) {
-    return this.userService.deleteData(userId);
+  async logout(@Res() res: Response): Promise<void> {
+    try {
+      // Clear the cookie by setting an empty value and an expired date
+      this.userService.logout(res);
+      res.status(200).send('Logout successful');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      throw error;
+    }
   }
 
   // View Particular user route
-  @Get('/:userId')
-  async viewUser(@Param('userId') userId: string) {
-    return this.userService.viewUser(userId);
+  @Get('/')
+  @UseGuards(AuthGuard)
+  async viewUser(@GetUserId() userId: string): Promise<User> {
+    try {
+      if (!userId) {
+        throw Error('UserId Not Found');
+      }
+      return this.userService.viewUser(userId);
+    } catch (error) {
+      console.error('Error during view user:', error);
+      throw error;
+    }
   }
 }
