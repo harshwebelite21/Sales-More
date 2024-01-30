@@ -13,8 +13,9 @@ import {
 import { Response } from 'express';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/auth_guard/authGuard';
-import { User, UserLogin, UserUpdate } from './user.model';
+import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 
 @Controller('user')
 export class UserController {
@@ -23,7 +24,7 @@ export class UserController {
   // Login route
   @Post('/login')
   @UsePipes(ValidationPipe)
-  async login(@Body() body: UserLogin, @Res() res: Response): Promise<void> {
+  async login(@Body() body: UserLoginDto, @Res() res: Response): Promise<void> {
     try {
       // Attempt to login and obtain a token from the service
       if (!body) {
@@ -45,7 +46,7 @@ export class UserController {
   // Signup route
   @Post('/signup')
   @UsePipes(ValidationPipe)
-  async signup(@Body() body: User): Promise<string> {
+  async signup(@Body() body: UserSignupDto): Promise<string> {
     try {
       if (!body) {
         throw Error('User Data Not Found');
@@ -62,7 +63,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async updateUser(
     @GetUserId() userId: string,
-    @Body() body: UserUpdate,
+    @Body() body: UserUpdateDto,
   ): Promise<string> {
     try {
       if (!userId && !body) {

@@ -3,8 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Response } from 'express';
 import { compare } from 'bcrypt';
-import { User, UserLogin, UserUpdate } from './user.model'; // Assuming the model file is named user.model.ts
+import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { generateJwtToken } from 'src/utils/jwt';
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -13,7 +14,7 @@ export class UserService {
   ) {}
 
   // Validate user login and generate JWT token
-  async login(body: UserLogin): Promise<string | Error> {
+  async login(body: UserLoginDto): Promise<string | Error> {
     // Find user by email
     const { email, password } = body;
     const userData = await this.userModel.findOne({ email });
@@ -36,14 +37,14 @@ export class UserService {
   }
 
   // Add new user or Signup
-  async signUp(body: User): Promise<string> {
+  async signUp(body: UserSignupDto): Promise<string> {
     // Create and save the new user
     await this.userModel.create(body);
     return 'User added successfully';
   }
 
   // Update user data by userId
-  async updateUser(userId: string, body: UserUpdate): Promise<string> {
+  async updateUser(userId: string, body: UserUpdateDto): Promise<string> {
     // Find and update user data by userId
     await this.userModel.findOneAndUpdate({ _id: userId }, body);
     return 'User data updated successfully';

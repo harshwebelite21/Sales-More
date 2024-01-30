@@ -86,15 +86,3 @@ export interface User {
   age: number;
   birthdate: Date;
 }
-export interface UserLogin {
-  email: string;
-  password: string;
-}
-
-export interface UserUpdate {
-  name?: string;
-  email?: string;
-  password?: string;
-  age?: number;
-  birthdate?: Date;
-}
