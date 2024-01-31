@@ -8,7 +8,8 @@ import {
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  catch(error: Error, host: ArgumentsHost) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catch(error: any, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse();
     const status =
       error instanceof HttpException
@@ -16,12 +17,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     // Log the error
-    console.error('Global Exception Filter:', error);
+    console.log('🚀 ~ GlobalExceptionFilter ~ error:', error);
 
     // Send a response to the client
     response.status(status).json({
-      message: error.message || 'Internal Server Error',
-      error: error,
+      message: error.response.message || 'Internal Server Error',
     });
   }
 }

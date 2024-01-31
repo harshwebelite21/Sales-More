@@ -8,7 +8,9 @@ import {
   IsDate,
   IsNotEmpty,
   IsOptional,
+  IsEmpty,
 } from 'class-validator';
+
 export class UserLoginDto {
   @IsEmail()
   @IsNotEmpty()
@@ -47,8 +49,7 @@ export class UserUpdateDto {
   @IsOptional()
   name?: string;
 
-  @IsEmail()
-  @IsOptional()
+  @IsEmpty()
   email?: string;
 
   @IsString()
@@ -63,5 +64,6 @@ export class UserUpdateDto {
 
   @IsDate()
   @IsOptional()
+  @Transform(({ value }) => new Date(value))
   birthdate?: Date;
 }
