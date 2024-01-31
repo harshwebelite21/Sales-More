@@ -15,7 +15,7 @@ export class ProductService {
   async getAllProducts(): Promise<Product[]> {
     const productData = await this.productModel.find();
     if (!productData) {
-      throw Error('Error in Viewing Data');
+      throw Error('Error in Getting All Product Data');
     }
     return productData;
   }

@@ -22,6 +22,7 @@ export class ProductController {
       const products = await this.productService.getAllProducts();
       return products;
     } catch (error) {
+      console.error('Error in The Getting All Products :-', error);
       throw Error('Error in Fetching Products');
     }
   }
@@ -30,9 +31,6 @@ export class ProductController {
   @Post('/')
   async addProducts(@Body() body: AddProductDto): Promise<object> {
     try {
-      if (!body) {
-        throw Error('No Data Found in Body');
-      }
       await this.productService.addProducts(body);
       return { success: true, message: 'Product added successfully' };
     } catch (error) {
@@ -42,18 +40,19 @@ export class ProductController {
   }
 
   // Update product details
-  @Put('/')
+  @Put('/:productId')
   async updateProduct(
     @Param('productId') productId: string,
     @Body() body: UpdateProductDto,
   ): Promise<object> {
     try {
-      if (!productId && !body) {
-        throw new Error('Product Id And Data To Update is Required');
+      if (!productId) {
+        throw new Error('Product Id To Update is Required');
       }
       await this.productService.updateProduct(body, productId);
       return { success: true, message: 'Product updated successfully' };
     } catch (error) {
+      console.error('Error during Updating Products:', error);
       throw Error('Error in Updating data');
     }
   }
@@ -68,6 +67,7 @@ export class ProductController {
       await this.productService.deleteProduct(productId);
       return { success: true, message: 'Product deleted successfully' };
     } catch (error) {
+      console.error('Error during deleting Products:', error);
       throw Error('Error in Deleting Product');
     }
   }
