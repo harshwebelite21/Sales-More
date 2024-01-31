@@ -1,46 +1,65 @@
-import { IsString, IsEmail, IsInt, Min, Max, IsDate } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsInt,
+  Min,
+  Max,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 export class UserLoginDto {
   @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }
 export class UserSignupDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
-  @IsInt()
-  @Min(6)
-  @Max(20)
+  @IsNotEmpty()
   password: string;
 
   @IsInt()
   @Min(0)
   @Max(100)
+  @IsNotEmpty()
   age: number;
 
   @IsDate()
+  @IsNotEmpty()
   birthdate: Date;
 }
 export class UserUpdateDto {
   @IsString()
+  @IsOptional()
   name?: string;
+
   @IsEmail()
+  @IsOptional()
   email?: string;
+
   @IsString()
-  @IsInt()
-  @Min(6)
-  @Max(20)
+  @IsOptional()
   password?: string;
 
   @IsInt()
   @Min(0)
   @Max(100)
+  @IsOptional()
   age?: number;
 
   @IsDate()
+  @IsOptional()
   birthdate?: Date;
 }

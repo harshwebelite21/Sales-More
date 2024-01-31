@@ -27,9 +27,6 @@ export class UserController {
   async login(@Body() body: UserLoginDto, @Res() res: Response): Promise<void> {
     try {
       // Attempt to login and obtain a token from the service
-      if (!body) {
-        throw Error('User Data Not Found');
-      }
       const token = await this.userService.login(body);
 
       // Set the token in a cookie
@@ -48,9 +45,6 @@ export class UserController {
   @UsePipes(ValidationPipe)
   async signup(@Body() body: UserSignupDto): Promise<string> {
     try {
-      if (!body) {
-        throw Error('User Data Not Found');
-      }
       return this.userService.signUp(body);
     } catch (error) {
       console.error('Error during signup:', error);
@@ -66,9 +60,6 @@ export class UserController {
     @Body() body: UserUpdateDto,
   ): Promise<string> {
     try {
-      if (!userId && !body) {
-        throw Error('UserId and UserData Not Found');
-      }
       return this.userService.updateUser(userId, body);
     } catch (error) {
       console.error('Error during update user:', error);
@@ -81,9 +72,6 @@ export class UserController {
   @UseGuards(AuthGuard)
   async deleteData(@GetUserId() userId: string): Promise<string> {
     try {
-      if (!userId) {
-        throw Error('UserId Not Found');
-      }
       return this.userService.deleteData(userId);
     } catch (error) {
       console.error('Error during delete data:', error);
@@ -95,7 +83,6 @@ export class UserController {
   @Get('/logout')
   async logout(@Res() res: Response): Promise<void> {
     try {
-      // Clear the cookie by setting an empty value and an expired date
       this.userService.logout(res);
       res.status(200).send('Logout successful');
     } catch (error) {
@@ -109,9 +96,6 @@ export class UserController {
   @UseGuards(AuthGuard)
   async viewUser(@GetUserId() userId: string): Promise<User> {
     try {
-      if (!userId) {
-        throw Error('UserId Not Found');
-      }
       return this.userService.viewUser(userId);
     } catch (error) {
       console.error('Error during view user:', error);
