@@ -1,5 +1,3 @@
-// global-exception.filter.ts
-
 import {
   ExceptionFilter,
   Catch,
@@ -19,13 +17,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     // Log the error
     console.error('Global Exception Filter:', error);
-    console.log(response.error, 'hello');
 
     // Send a response to the client
     response.status(status).json({
-      message: 'An error occurred',
-      error: error.message || 'Internal Server Error',
-      test: error,
+      message: error.message || 'Internal Server Error',
+      error: error,
     });
   }
 }

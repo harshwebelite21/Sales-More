@@ -6,6 +6,7 @@ import { compare } from 'bcrypt';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { generateJwtToken } from 'src/utils/jwt';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -45,17 +46,12 @@ export class UserService {
 
   // Update user data by userId
   async updateUser(userId: string, body: UserUpdateDto): Promise<string> {
-    // Find and update user data by userId
     await this.userModel.findOneAndUpdate({ _id: userId }, body);
     return 'User data updated successfully';
   }
 
   // Delete user by userId
   async deleteData(userId): Promise<string> {
-    // Delete the user from the user collection by userId
-    if (!userId) {
-      throw Error('User not found!');
-    }
     await this.userModel.findByIdAndDelete(userId);
     return 'User deleted successfully';
   }
@@ -67,7 +63,6 @@ export class UserService {
 
   // View user data by userId
   async viewUser(userId: string): Promise<User> {
-    // Find user by userId and retrieve lean data
     const userData = await this.userModel.findById(userId).lean();
     if (!userData) {
       throw new Error('User data not found');

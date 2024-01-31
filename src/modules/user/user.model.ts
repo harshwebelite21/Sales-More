@@ -1,6 +1,5 @@
 import { hash } from 'bcrypt';
 import { Schema } from 'mongoose';
-
 const saltRounds = 10;
 
 // Define the user schema

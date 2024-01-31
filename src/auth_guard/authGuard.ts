@@ -1,7 +1,7 @@
 // auth.guard.ts
 
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { decodeJwtToken, verifyJwtToken } from 'src/utils/jwt';
+import { verifyJwtToken } from 'src/utils/jwt';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -10,27 +10,26 @@ export class AuthGuard implements CanActivate {
 
     try {
       const headerToken = request.headers.authorization?.replace('Bearer ', '');
-
       const cookieToken = request.cookies.jwtToken;
-      // console.log(cookieToken);
       const token = cookieToken || headerToken;
 
       if (!token) {
         throw new Error('Access denied. Token not provided.');
       }
-      const validToken = verifyJwtToken(cookieToken);
+      const validToken = verifyJwtToken(token);
 
       if (!validToken) {
         throw new Error('Invalid Token ');
       }
-      const decodedToken = decodeJwtToken(token);
-      // console.log(decodedToken);
 
-      if (!decodedToken) {
-        throw new Error('Invalid decoded Token');
-      }
+      // Decode function
+      // const decodedToken = decodeJwtToken(token);
 
-      request.userId = decodedToken; // Attach userId to request
+      // if (!decodedToken) {
+      //   throw new Error('Invalid decoded Token');
+      // }
+      request.userId = validToken;
+      // Attach userId to request
 
       return true;
     } catch (error) {

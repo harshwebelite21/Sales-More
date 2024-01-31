@@ -7,6 +7,10 @@ export const GetUserId = createParamDecorator(
   (data, executionContext: ExecutionContext) => {
     const context = executionContext.switchToHttp();
     const request: RequestWithUser = context.getRequest<RequestWithUser>();
-    return request.userId;
+    const userId = request.userId;
+    if (!userId) {
+      throw Error('User Id Not Found In UserId Decoder');
+    }
+    return userId;
   },
 );
