@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsEmail,
@@ -38,6 +39,7 @@ export class UserSignupDto {
 
   @IsDate()
   @IsNotEmpty()
+  @Transform(({ value }) => new Date(value))
   birthdate: Date;
 }
 export class UserUpdateDto {
