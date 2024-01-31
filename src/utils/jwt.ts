@@ -2,7 +2,7 @@ import { sign, verify } from 'jsonwebtoken';
 import { appConfig } from 'src/config/appConfig';
 
 // Generate JWT token with the provided payload and options
-export function generateJwtToken(payload, options) {
+export const generateJwtToken = (payload, options) => {
   try {
     // Sign the JWT token using the configured secret key
     return sign(payload, appConfig.jwtKey, options);
@@ -11,10 +11,10 @@ export function generateJwtToken(payload, options) {
     console.error('Error while generating token', err);
     throw err;
   }
-}
+};
 
 // Verify the provided JWT token
-export function verifyJwtToken(cookieToken) {
+export const verifyJwtToken = (cookieToken) => {
   try {
     const decodedToken = verify(cookieToken, appConfig.jwtKey);
     const userId = decodedToken ? decodedToken.userId : null;
@@ -23,7 +23,7 @@ export function verifyJwtToken(cookieToken) {
     console.error('Error while verifying token:', err);
     return false;
   }
-}
+};
 
 // Decode the provided JWT token to retrieve the userId
 // export function decodeJwtToken(cookieToken) {

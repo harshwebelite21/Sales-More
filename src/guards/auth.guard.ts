@@ -1,5 +1,3 @@
-// auth.guard.ts
-
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { verifyJwtToken } from 'src/utils/jwt';
 
@@ -19,7 +17,7 @@ export class AuthGuard implements CanActivate {
       const validToken = verifyJwtToken(token);
 
       if (!validToken) {
-        throw new Error('Invalid Token ');
+        throw new Error('UserId not found from token!');
       }
 
       // Decode function
