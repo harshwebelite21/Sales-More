@@ -6,9 +6,10 @@ import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { ProductModule } from './modules/products/products.module';
 import { AuthGuard } from './auth_guard/authGuard';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
-  imports: [UserModule, DatabaseModule, ProductModule],
+  imports: [UserModule, DatabaseModule, ProductModule, CartModule],
   controllers: [AppController],
   providers: [AppService, AuthGuard],
 })
