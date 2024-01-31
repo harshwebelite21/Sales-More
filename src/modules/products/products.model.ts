@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
+import { Schema } from 'mongoose';
 
-export const ProductSchema = new mongoose.Schema(
+export const ProductSchema = new Schema(
   {
     name: {
       type: String,
@@ -22,7 +22,7 @@ export const ProductSchema = new mongoose.Schema(
   },
 );
 
-export interface Product extends mongoose.Document {
+export interface Product {
   name: string;
   description: string;
   price: number;
