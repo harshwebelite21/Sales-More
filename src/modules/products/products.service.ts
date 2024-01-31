@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './products.model';
-import { UpdateProductDto } from './dto/product.dto';
+import { AddProductDto, UpdateProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -12,32 +12,32 @@ export class ProductService {
   ) {}
 
   // Get all products
-  async getAllProducts(): Promise<string> {
+  async getAllProducts(): Promise<Product[]> {
     const productData = await this.productModel.find();
     if (!productData) {
       throw Error('Error in Viewing Data');
     }
-    return 'productData';
+    return productData;
   }
 
   // Add product data
-  async addProducts(body): Promise<string> {
+  async addProducts(body: AddProductDto): Promise<boolean> {
     await this.productModel.create(body);
-    return 'Data added successfully';
+    return true;
   }
 
   // Update product data
   async updateProduct(
     body: UpdateProductDto,
     productId: string,
-  ): Promise<string> {
+  ): Promise<boolean> {
     await this.productModel.updateOne({ _id: productId }, body);
-    return 'Data updated successfully';
+    return true;
   }
 
   // Delete a product
-  async deleteProduct(productId: string): Promise<string> {
+  async deleteProduct(productId: string): Promise<boolean> {
     await this.productModel.findByIdAndDelete(productId);
-    return 'Data deleted successfully';
+    return true;
   }
 }

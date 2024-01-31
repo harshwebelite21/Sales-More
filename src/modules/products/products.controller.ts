@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './products.service';
 import { AddProductDto, UpdateProductDto } from './dto/product.dto';
+import { Product } from './products.model';
 
 @Controller('product')
 export class ProductController {
@@ -16,7 +17,7 @@ export class ProductController {
 
   // Get all products
   @Get('/')
-  async getAllProducts(): Promise<string> {
+  async getAllProducts(): Promise<Product[]> {
     try {
       const products = await this.productService.getAllProducts();
       return products;
@@ -29,10 +30,14 @@ export class ProductController {
   @Post('/')
   async addProducts(@Body() body: AddProductDto): Promise<object> {
     try {
+      if (!body) {
+        throw Error('No Data Found in Body');
+      }
       await this.productService.addProducts(body);
       return { success: true, message: 'Product added successfully' };
     } catch (error) {
-      throw Error('Error in Adding Product');
+      console.error('Error during Adding Products:', error);
+      throw error;
     }
   }
 
@@ -43,6 +48,9 @@ export class ProductController {
     @Body() body: UpdateProductDto,
   ): Promise<object> {
     try {
+      if (!productId && !body) {
+        throw new Error('Product Id And Data To Update is Required');
+      }
       await this.productService.updateProduct(body, productId);
       return { success: true, message: 'Product updated successfully' };
     } catch (error) {
@@ -54,6 +62,9 @@ export class ProductController {
   @Delete('/:productId')
   async deleteProduct(@Param('productId') productId: string): Promise<object> {
     try {
+      if (!productId) {
+        throw Error('ProductId Is require to Delete Product');
+      }
       await this.productService.deleteProduct(productId);
       return { success: true, message: 'Product deleted successfully' };
     } catch (error) {
