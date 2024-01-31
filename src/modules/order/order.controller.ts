@@ -1,12 +1,14 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
 
-@Controller()
+@Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   // Checkout
   @Post('/')
+  @UseGuards(AuthGuard)
   async checkOut(@GetUserId() userId: string) {
     try {
       await this.orderService.checkOut(userId);
@@ -19,6 +21,7 @@ export class OrderController {
   // View Order History using user Specific userId
 
   @Get('/')
+  @UseGuards(AuthGuard)
   async getOrderHistory(@GetUserId() userId: string) {
     try {
       return this.orderService.getOrderHistory(userId);

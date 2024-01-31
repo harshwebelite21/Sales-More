@@ -5,6 +5,9 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { AuthGuard } from './guards/auth.guard';
+import { ProductModule } from './modules/products/products.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [UserModule, DatabaseModule, ProductModule, CartModule, OrderModule],

@@ -4,11 +4,15 @@ import { DatabaseModule } from 'src/modules/database/database.module';
 import { UserSchema } from './user.model';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { CartSchema } from '../cart/cart.model';
 
 @Module({
   imports: [
     DatabaseModule,
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: 'User', schema: UserSchema },
+      { name: 'Cart', schema: CartSchema },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService],
