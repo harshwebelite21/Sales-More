@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './order.model';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Cart } from '../cart/cart.model';
 import { Product } from '../products/products.model';
 
@@ -72,6 +72,50 @@ export class OrderService {
     if (!orderData) {
       throw Error('No Order History found');
     }
+    return orderData;
+  }
+
+  async filterOrder(body) {
+    const { userId, productId, maxAmount, minAmount, pageNumber, pageSize } =
+      body;
+
+    const query = {
+      ...(userId && { userId: new Types.ObjectId(userId) }),
+      ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
+      ...(maxAmount &&
+        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
+    };
+
+    console.log('🚀 ~ OrderService ~ filterOrder ~ query:', query);
+
+    const orderData = await this.orderModel.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $skip: (pageNumber - 1) * pageSize, // Skip documents based on the page number
+      },
+      {
+        $limit: pageSize, // Limit the number of documents per page
+      },
+      {
+        $group: {
+          _id: null,
+          Orders: { $push: '$$ROOT' },
+          totalAmount: {
+            $sum: '$amount',
+          },
+        },
+      },
+      {
+        $project: {
+          Orders: '$Orders',
+          totalAmount: '$totalAmount',
+        },
+      },
+    ]);
+
+    console.log(orderData);
     return orderData;
   }
 }

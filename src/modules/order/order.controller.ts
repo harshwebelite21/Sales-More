@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -27,6 +27,16 @@ export class OrderController {
       return this.orderService.getOrderHistory(userId);
     } catch (error) {
       console.error('Error during Getting Order History:', error);
+      throw error;
+    }
+  }
+
+  @Get('/filterApi')
+  async filterOrders(@Body() body) {
+    try {
+      return this.orderService.filterOrder(body);
+    } catch (error) {
+      console.error('Error during Getting Order Filter:', error);
       throw error;
     }
   }
