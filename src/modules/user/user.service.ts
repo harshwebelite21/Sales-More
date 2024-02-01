@@ -46,11 +46,7 @@ export class UserService {
 
   // Update user data by userId
   async updateUser(userId: string, body: UserUpdateDto): Promise<string> {
-    const { name, password, birthdate, age } = body;
-    await this.userModel.findOneAndUpdate(
-      { _id: userId },
-      { name: name, password: password, birthdate: birthdate, age: age },
-    );
+    await this.userModel.findOneAndUpdate({ _id: userId }, body);
     return 'User data updated successfully';
   }
 
