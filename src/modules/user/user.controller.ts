@@ -7,6 +7,7 @@ import {
   Put,
   Res,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { UserInterceptor } from 'src/interceptor/interceptor';
 
 @Controller('user')
 export class UserController {
@@ -55,6 +57,7 @@ export class UserController {
   // Update User route
   @Put('/')
   @UseGuards(AuthGuard)
+  @UseInterceptors(UserInterceptor)
   async updateUser(
     @GetUserId() userId: string,
     @Body() body: UserUpdateDto,
