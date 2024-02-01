@@ -12,6 +12,10 @@ export class AddProductDto {
   @IsNotEmpty()
   @IsInt()
   price: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  availableQuantity: number;
 }
 
 export class UpdateProductDto {
@@ -26,4 +30,8 @@ export class UpdateProductDto {
   @IsInt()
   @IsOptional()
   price?: number;
+
+  @IsInt()
+  @IsOptional()
+  availableQuantity?: number;
 }
