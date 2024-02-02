@@ -18,46 +18,56 @@ export class OrderService {
     const cartProducts = await this.cartModel
       .findOne(
         {
-          userId: userId,
+          userId,
         },
         { products: 1, _id: 0 },
       )
       .lean();
 
     if (!cartProducts) {
-      throw Error('Error During Checkout');
+      throw new Error('User Cart Not found');
     }
-    // Mapping the the product Id from cart Products
-    const allProductId = cartProducts.products.map(
-      (product) => product.productId,
-    );
 
-    // Find the product details from the product Collection which id is in allProductId
+    // Fetch all product details in one query
     const allProduct = await this.productModel.find({
-      _id: { $in: allProductId },
+      _id: { $in: cartProducts.products.map((product) => product.productId) },
     });
 
-    // Finding the Total Amount of All Product in cart
+    // Validate product availability and calculate total bill in a single loop
     let totalBill = 0;
-    allProduct.forEach(({ _id, price }) => {
-      const matchingProduct = cartProducts.products.find(({ productId }) =>
+    for (const product of cartProducts.products) {
+      const { productId, quantity } = product;
+      const matchingProduct = allProduct.find(({ _id }) =>
         _id.equals(productId),
       );
 
-      if (matchingProduct) {
-        totalBill += price * matchingProduct.quantity;
+      if (!matchingProduct) {
+        throw new Error('Item Is Not Available');
       }
-    });
+
+      if (quantity > matchingProduct.availableQuantity) {
+        throw new Error(`${matchingProduct.name} Is Out Of Stock`);
+      }
+
+      // Increment the quantity in the product model
+      await this.productModel.updateOne(
+        { _id: productId },
+        { $inc: { availableQuantity: -quantity } },
+      );
+
+      // Calculate the total bill
+      totalBill += matchingProduct.price * quantity;
+    }
 
     // Creating record in order table for history
     await this.orderModel.create({
-      userId: userId,
+      userId,
       products: cartProducts.products,
       amount: totalBill,
     });
 
     // To Delete cart from the Cart collection After saving History in Order Table
-    await this.cartModel.deleteOne({ userId: userId });
+    await this.cartModel.deleteOne({ userId });
     return true;
   }
 
