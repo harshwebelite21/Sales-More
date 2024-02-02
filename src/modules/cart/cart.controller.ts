@@ -18,7 +18,7 @@ export class CartController {
   @Post('/')
   async addToCart(@Body() body: AddToCartDto) {
     try {
-      this.cartService.addToCart(body);
+      await this.cartService.addToCart(body);
       return { success: true, message: 'Product added successfully In Cart' };
     } catch (error) {
       console.error('Error during logout:', error);
@@ -30,7 +30,7 @@ export class CartController {
   @Delete('/:userId')
   async removeFromCart(@Param('userId') userId: string) {
     try {
-      this.cartService.removeFromCart(userId);
+      await this.cartService.removeFromCart(userId);
       return { success: true, message: 'cart Removed successfully' };
     } catch (error) {
       console.error('Error during removeFromCart:', error);
@@ -52,7 +52,7 @@ export class CartController {
   @Patch('/items')
   async removeSpecificItem(@Body() body: RemoveSpecificItemDto) {
     try {
-      this.cartService.removeSpecificItem(body);
+      await this.cartService.removeSpecificItem(body);
       return { success: true, message: 'Item Removed successfully' };
     } catch (error) {
       console.error('Error during removing Item:', error);
@@ -64,7 +64,7 @@ export class CartController {
   @Patch('/reduce-quantity')
   async reduceQuantity(@Body() body: RemoveSpecificItemDto) {
     try {
-      this.cartService.reduceQuantity(body);
+      await this.cartService.reduceQuantity(body);
       return { success: true, message: 'Product Decremented successfully' };
     } catch (error) {
       console.error('Error during reduce quantity of Item:', error);
