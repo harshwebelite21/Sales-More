@@ -23,6 +23,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
-    '@typescript-eslint/no-unsafe-argument': ['off']
+    '@typescript-eslint/no-unsafe-argument': ['off'],
+    'object-shorthand': ['error', 'always'],
   },
 };
