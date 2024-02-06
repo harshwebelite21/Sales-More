@@ -12,7 +12,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      message: message,
+      message,
       error: exception,
     });
   }

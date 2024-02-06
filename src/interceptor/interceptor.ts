@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Injectable()
 export class UserInterceptor implements NestInterceptor {
@@ -21,6 +21,10 @@ export class UserInterceptor implements NestInterceptor {
       };
     }
 
-    return next.handle();
+    return next.handle().pipe(
+      map(() => {
+        return `${request.body.name} User Data Updated Successfully`;
+      }),
+    );
   }
 }

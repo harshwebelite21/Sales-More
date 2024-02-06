@@ -47,7 +47,7 @@ export class CartService {
 
   //  Delete data from cart
   async removeFromCart(userId): Promise<boolean> {
-    await this.cartModel.findOneAndDelete({ userId: userId });
+    await this.cartModel.findOneAndDelete({ userId });
     return true;
   }
 
