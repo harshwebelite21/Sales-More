@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { AuthGuard } from './guards/auth.guard';
+import { ProductModule } from './modules/products/products.module';
 
 @Module({
-  imports: [UserModule, DatabaseModule],
+  imports: [UserModule, DatabaseModule, ProductModule],
   controllers: [AppController],
   providers: [AppService, AuthGuard],
 })

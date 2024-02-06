@@ -84,6 +84,7 @@ export class UserController {
 
   // Logout route
   @Get('/logout')
+  @UseGuards(AuthGuard)
   async logout(@Res() res: Response): Promise<void> {
     try {
       this.userService.logout(res);
