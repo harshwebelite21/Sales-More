@@ -3,9 +3,16 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+    'unused-imports',
+    'typescript-sort-keys',
+    'import',
+  ],
   extends: [
-    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
     'prettier',
   ],
   overrides: [
@@ -25,6 +32,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-unsafe-argument': ['off'],
     'object-shorthand': ['error', 'always'],
-    
+    '@typescript-eslint/no-unused-vars': 'error',
+    'unused-imports/no-unused-imports': 'error',
   },
 };
