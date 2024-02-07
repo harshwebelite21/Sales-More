@@ -8,7 +8,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
+import {
+  AddToCartDto,
+  FindCartInterface,
+  RemoveSpecificItemDto,
+} from './dto/cart.dto';
+import { SuccessMessageDTO } from '../products/dto/product.dto';
 
 @Controller('cart')
 export class CartController {
@@ -16,9 +21,9 @@ export class CartController {
 
   // Add New Item To cart
   @Post('/')
-  async addToCart(@Body() body: AddToCartDto) {
+  async addToCart(@Body() body: AddToCartDto): Promise<SuccessMessageDTO> {
     try {
-      this.cartService.addToCart(body);
+      await this.cartService.addToCart(body);
       return { success: true, message: 'Product added successfully In Cart' };
     } catch (error) {
       console.error('Error during logout:', error);
@@ -28,9 +33,11 @@ export class CartController {
 
   // Remove the  user Cart
   @Delete('/:userId')
-  async removeFromCart(@Param('userId') userId: string) {
+  async removeFromCart(
+    @Param('userId') userId: string,
+  ): Promise<SuccessMessageDTO> {
     try {
-      this.cartService.removeFromCart(userId);
+      await this.cartService.removeFromCart(userId);
       return { success: true, message: 'cart Removed successfully' };
     } catch (error) {
       console.error('Error during removeFromCart:', error);
@@ -39,7 +46,9 @@ export class CartController {
   }
   // View the user specific Cart
   @Get('/:userId')
-  async findCart(@Param('userId') userId: string) {
+  async findCart(
+    @Param('userId') userId: string,
+  ): Promise<FindCartInterface[]> {
     try {
       return this.cartService.findCart(userId);
     } catch (error) {
@@ -50,9 +59,11 @@ export class CartController {
 
   // Remove the Specific Item From cart
   @Patch('/items')
-  async removeSpecificItem(@Body() body: RemoveSpecificItemDto) {
+  async removeSpecificItem(
+    @Body() body: RemoveSpecificItemDto,
+  ): Promise<SuccessMessageDTO> {
     try {
-      this.cartService.removeSpecificItem(body);
+      await this.cartService.removeSpecificItem(body);
       return { success: true, message: 'Item Removed successfully' };
     } catch (error) {
       console.error('Error during removing Item:', error);
@@ -62,9 +73,11 @@ export class CartController {
 
   // Decrement the quantity from cart
   @Patch('/reduce-quantity')
-  async reduceQuantity(@Body() body: RemoveSpecificItemDto) {
+  async reduceQuantity(
+    @Body() body: RemoveSpecificItemDto,
+  ): Promise<SuccessMessageDTO> {
     try {
-      this.cartService.reduceQuantity(body);
+      await this.cartService.reduceQuantity(body);
       return { success: true, message: 'Product Decremented successfully' };
     } catch (error) {
       console.error('Error during reduce quantity of Item:', error);
