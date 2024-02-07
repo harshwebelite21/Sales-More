@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
+import { SuccessMessageDTO } from '../products/dto/product.dto';
+import { FindCartInterface } from './interfaces/cart.interface';
 
 @Controller('cart')
 export class CartController {
@@ -16,7 +18,7 @@ export class CartController {
 
   // Add New Item To cart
   @Post('/')
-  async addToCart(@Body() body: AddToCartDto) {
+  async addToCart(@Body() body: AddToCartDto): Promise<SuccessMessageDTO> {
     try {
       await this.cartService.addToCart(body);
       return { success: true, message: 'Product added successfully In Cart' };
@@ -28,7 +30,9 @@ export class CartController {
 
   // Remove the  user Cart
   @Delete('/:userId')
-  async removeFromCart(@Param('userId') userId: string) {
+  async removeFromCart(
+    @Param('userId') userId: string,
+  ): Promise<SuccessMessageDTO> {
     try {
       await this.cartService.removeFromCart(userId);
       return { success: true, message: 'cart Removed successfully' };
@@ -39,7 +43,9 @@ export class CartController {
   }
   // View the user specific Cart
   @Get('/:userId')
-  async findCart(@Param('userId') userId: string) {
+  async findCart(
+    @Param('userId') userId: string,
+  ): Promise<FindCartInterface[]> {
     try {
       return this.cartService.findCart(userId);
     } catch (error) {
@@ -50,7 +56,9 @@ export class CartController {
 
   // Remove the Specific Item From cart
   @Patch('/items')
-  async removeSpecificItem(@Body() body: RemoveSpecificItemDto) {
+  async removeSpecificItem(
+    @Body() body: RemoveSpecificItemDto,
+  ): Promise<SuccessMessageDTO> {
     try {
       await this.cartService.removeSpecificItem(body);
       return { success: true, message: 'Item Removed successfully' };
@@ -62,7 +70,9 @@ export class CartController {
 
   // Decrement the quantity from cart
   @Patch('/reduce-quantity')
-  async reduceQuantity(@Body() body: RemoveSpecificItemDto) {
+  async reduceQuantity(
+    @Body() body: RemoveSpecificItemDto,
+  ): Promise<SuccessMessageDTO> {
     try {
       await this.cartService.reduceQuantity(body);
       return { success: true, message: 'Product Decremented successfully' };

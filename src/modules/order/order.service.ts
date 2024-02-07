@@ -74,7 +74,7 @@ export class OrderService {
   // View the user data from Order
   async getOrderHistory(userId): Promise<Order> {
     const orderData = await this.orderModel
-      .findOne({ userId: userId })
+      .findOne({ userId })
       .populate('userId')
       .populate('products.productId')
       .lean();

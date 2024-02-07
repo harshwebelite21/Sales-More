@@ -20,12 +20,6 @@ export class AuthGuard implements CanActivate {
         throw new Error('UserId not found from token!');
       }
 
-      // Decode function
-      // const decodedToken = decodeJwtToken(token);
-
-      // if (!decodedToken) {
-      //   throw new Error('Invalid decoded Token');
-      // }
       request.userId = validToken;
       // Attach userId to request
 

@@ -55,7 +55,7 @@ export class UserService {
   async deleteData(userId): Promise<string> {
     await this.userModel.findByIdAndDelete(userId);
     // delete all carts that contain the deleted user
-    await this.cartModel.findOneAndDelete({ userId: userId });
+    await this.cartModel.findOneAndDelete({ userId });
 
     return 'User deleted successfully';
   }

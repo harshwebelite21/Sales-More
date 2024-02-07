@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.model';
-import { Model, Types } from 'mongoose';
-import { Product } from '../products/products.model';
+import { Model } from 'mongoose';
+import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
+import { FindCartInterface } from './interfaces/cart.interface';
 
 @Injectable()
 export class CartService {
@@ -13,7 +14,7 @@ export class CartService {
   ) {}
 
   // Create a cart
-  async addToCart(body): Promise<boolean> {
+  async addToCart(body: AddToCartDto): Promise<void> {
     const { userId, products } = body;
     const productId = products[0].productId;
     const productAvailable = await this.productModel.findOne({
@@ -54,19 +55,16 @@ export class CartService {
     } else {
       await this.cartModel.create({ userId, products });
     }
-
-    return true;
   }
 
   //  Delete data from cart
-  async removeFromCart(userId): Promise<boolean> {
-    await this.cartModel.findOneAndDelete({ userId: userId });
-    return true;
+  async removeFromCart(userId: string): Promise<void> {
+    await this.cartModel.findOneAndDelete({ userId });
   }
 
   // To remove the specific item from cart
 
-  async removeSpecificItem(body): Promise<boolean> {
+  async removeSpecificItem(body: RemoveSpecificItemDto): Promise<void> {
     const { userId, productId } = body;
     const updatedCart = await this.cartModel
       .updateOne(
@@ -81,15 +79,14 @@ export class CartService {
       throw Error('Cart or item not found');
     }
     this.checkAndDeleteEmptyCart();
-    return true;
   }
 
   // View the user data from cart
-  async findCart(userId) {
+  async findCart(userId: string): Promise<FindCartInterface[]> {
     const cartData = await this.cartModel.aggregate([
       {
         $match: {
-          userId: new Types.ObjectId(userId),
+          userId,
         },
       },
       {
@@ -109,13 +106,14 @@ export class CartService {
         },
       },
     ]);
-    if (cartData.length == 0) {
+    if (!cartData.length) {
       throw Error('No Such User Found');
     }
+
     return cartData;
   }
 
-  async reduceQuantity(body): Promise<boolean> {
+  async reduceQuantity(body: RemoveSpecificItemDto): Promise<void> {
     const { userId, productId } = body;
     const decrementedData = await this.cartModel
       .updateOne(
@@ -131,11 +129,10 @@ export class CartService {
     if (!decrementedData || decrementedData.modifiedCount < 1) {
       throw Error('Cart or item not found.');
     }
-    return true;
   }
 
   // Automatically Delete cart if it is an empty cart
-  async checkAndDeleteEmptyCart() {
+  async checkAndDeleteEmptyCart(): Promise<void> {
     // Find carts with no products
     const emptyCarts = await this.cartModel.aggregate([
       {
