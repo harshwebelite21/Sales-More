@@ -17,29 +17,25 @@ export class ProductService {
 
   // Get all products
   async getAllProducts(): Promise<Product[]> {
-    const productData = await this.productModel.find();
-    return productData;
+    return this.productModel.find();
   }
 
   // Add product data
-  async addProducts(body: AddProductDto): Promise<boolean> {
+  async addProducts(body: AddProductDto): Promise<void> {
     await this.productModel.create(body);
-    return true;
   }
 
   // Update product data
   async updateProduct(
     body: UpdateProductDto,
     productId: string,
-  ): Promise<boolean> {
+  ): Promise<void> {
     await this.productModel.updateOne({ _id: productId }, body);
-    return true;
   }
 
   // Delete a product
-  async deleteProduct(productId: string): Promise<boolean> {
+  async deleteProduct(productId: string): Promise<void> {
     await this.productModel.findByIdAndDelete(productId);
-    return true;
   }
 
   // Filter Product
