@@ -15,18 +15,26 @@ export class ProductService {
     private readonly productModel: Model<Product>,
   ) {}
 
+  // Get all products
+  async getAllProducts(): Promise<Product[]> {
+    return this.productModel.find();
+  }
+
   // Add product data
-  async addProducts(body: AddProductDto) {
+  async addProducts(body: AddProductDto): Promise<void> {
     await this.productModel.create(body);
   }
 
   // Update product data
-  async updateProduct(body: UpdateProductDto, productId: string) {
+  async updateProduct(
+    body: UpdateProductDto,
+    productId: string,
+  ): Promise<void> {
     await this.productModel.updateOne({ _id: productId }, body);
   }
 
   // Delete a product
-  async deleteProduct(productId: string) {
+  async deleteProduct(productId: string): Promise<void> {
     await this.productModel.findByIdAndDelete(productId);
   }
 

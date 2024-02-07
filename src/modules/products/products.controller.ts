@@ -65,7 +65,6 @@ export class ProductController {
   // Filter Product
   @Get('/')
   async filterProduct(@Query() query: FilterProductDto): Promise<Product[]> {
-    console.log('🚀 ~ ProductController ~ filterProduct ~ query:', query);
     return this.productService.filterProduct(query);
   }
 }

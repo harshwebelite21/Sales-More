@@ -1,54 +1,45 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { hash } from 'bcrypt';
-import { Schema } from 'mongoose';
+import { Document } from 'mongoose';
 const saltRounds = 10;
 
 // Define the user schema
-export const UserSchema = new Schema(
-  {
-    // User name field
-    name: {
-      type: String,
-      required: true,
-      minLength: 3,
-      maxLength: 20,
-      trim: true,
-    },
-    // User email field
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        // Validate email using a regular expression
-        validator: (value) => {
-          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-          return emailRegex.test(value);
-        },
-        message: (props) => `${props.value} is not a valid email address!`,
+
+@Schema({ timestamps: true })
+export class User extends Document {
+  @Prop({
+    type: String,
+    required: true,
+    minLength: 3,
+    maxLength: 20,
+    trim: true,
+  })
+  name: string;
+
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: (value) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(value);
       },
+      message: (props) => `${props.value} is not a valid email address!`,
     },
-    // User password field
-    password: {
-      type: String,
-      required: true,
-    },
-    // User age field
-    age: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 100,
-    },
-    // User birthdate field
-    birthdate: {
-      type: Date,
-      required: true,
-    },
-  },
-  {
-    timestamps: true, // Add createdAt and updatedAt fields
-  },
-);
+  })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
+
+  @Prop({ type: Number, required: true, min: 0, max: 100 })
+  age: number;
+
+  @Prop({ type: Date, required: true })
+  birthdate: Date;
+}
+export const UserSchema = SchemaFactory.createForClass(User);
 
 // Middleware to encrypt password before saving new data
 UserSchema.pre('save', async function (next) {
@@ -77,11 +68,3 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
     next(err);
   }
 });
-
-export interface User {
-  name: string;
-  email: string;
-  password: string;
-  age: number;
-  birthdate: Date;
-}
