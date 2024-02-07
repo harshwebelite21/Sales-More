@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order } from './order.model';
-import { Model, Types } from 'mongoose';
+import { Order, SortEnum } from './order.model';
+import { Model, PipelineStage, Types } from 'mongoose';
 import { Cart } from '../cart/cart.model';
 import { Product } from '../products/products.model';
+import { OrderFilterType } from './interfaces/order.interface';
 
 @Injectable()
 export class OrderService {
@@ -13,7 +14,7 @@ export class OrderService {
     @InjectModel('Product') private readonly productModel: Model<Product>,
   ) {}
   // Create a Order
-  async checkOut(userId): Promise<boolean> {
+  async checkOut(userId): Promise<void> {
     // Find the Cart products Of the specific user
     const cartProducts = await this.cartModel
       .findOne(
@@ -68,26 +69,28 @@ export class OrderService {
 
     // To Delete cart from the Cart collection After saving History in Order Table
     await this.cartModel.deleteOne({ userId });
-    return true;
   }
 
   // View the user data from Order
-  async getOrderHistory(userId): Promise<Order> {
-    const orderData = await this.orderModel
-      .findOne({ userId })
+  async getOrderHistory(userId): Promise<Order[]> {
+    return this.orderModel
+      .find({ userId })
       .populate('userId')
       .populate('products.productId')
       .lean();
-
-    if (!orderData) {
-      throw Error('No Order History found');
-    }
-    return orderData;
   }
 
-  async filterOrder(body) {
-    const { userId, productId, maxAmount, minAmount, pageNumber, pageSize } =
-      body;
+  async filterOrder(queryData): Promise<OrderFilterType[]> {
+    const {
+      userId,
+      productId,
+      maxAmount,
+      minAmount,
+      pageNumber = 1,
+      pageSize = 10,
+      sortBy,
+      sortOrder,
+    } = queryData;
 
     const query = {
       ...(userId && { userId: new Types.ObjectId(userId) }),
@@ -95,10 +98,13 @@ export class OrderService {
       ...(maxAmount &&
         minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
     };
+    const sortStage: PipelineStage = {
+      $sort: {
+        [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
+      },
+    };
 
-    console.log('🚀 ~ OrderService ~ filterOrder ~ query:', query);
-
-    const orderData = await this.orderModel.aggregate([
+    const pipeline: PipelineStage[] = [
       {
         $match: query,
       },
@@ -123,9 +129,9 @@ export class OrderService {
           totalAmount: '$totalAmount',
         },
       },
-    ]);
+      sortStage,
+    ];
 
-    console.log(orderData);
-    return orderData;
+    return this.orderModel.aggregate(pipeline).exec();
   }
 }

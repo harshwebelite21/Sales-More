@@ -1,38 +1,25 @@
-import { Schema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+@Schema({ timestamps: true })
+export class Order extends Document {
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId: Types.ObjectId;
 
-export const OrderSchema = new Schema(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+  @Prop([
+    {
+      productId: { type: Types.ObjectId, ref: 'Product' },
+      quantity: { type: Number, default: 1 },
     },
-    products: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: 'Product',
-        },
-        quantity: {
-          type: Number,
-          default: 1,
-        },
-      },
-    ],
-    amount: {
-      type: Number,
-      require: true,
-    },
-  },
-  {
-    timestamps: true, // Add createdAt and updatedAt fields
-  },
-);
+  ])
+  products: { productId: Types.ObjectId; quantity: number }[];
 
-export interface Order {
-  userId: string;
-  products: Array<{
-    productId: string;
-    quantity: number;
-  }>;
+  @Prop({ required: true, type: Number })
   amount: number;
+}
+
+export const OrderSchema = SchemaFactory.createForClass(Order);
+
+export enum SortEnum {
+  ASC = 'asc',
+  DESC = 'desc',
 }

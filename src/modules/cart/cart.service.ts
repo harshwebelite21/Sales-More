@@ -4,6 +4,7 @@ import { Cart } from './cart.model';
 import { Model } from 'mongoose';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
+import { Product } from '../products/products.model';
 
 @Injectable()
 export class CartService {

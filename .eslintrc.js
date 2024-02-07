@@ -4,12 +4,7 @@ module.exports = {
     es2021: true,
   },
 
-  plugins: [
-    '@typescript-eslint/eslint-plugin',
-    'unused-imports',
-    
-    'import',
-  ],
+  plugins: ['@typescript-eslint/eslint-plugin', 'unused-imports', 'import'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
