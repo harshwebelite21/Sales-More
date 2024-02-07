@@ -15,11 +15,11 @@ export class AddToCartDto {
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ModelArray)
-  products: Array<ModelArray>;
+  @Type(() => Products)
+  products: Array<Products>;
 }
 
-export class ModelArray {
+export class Products {
   @IsNotEmpty()
   @IsString()
   productId: string;
@@ -36,19 +36,4 @@ export class RemoveSpecificItemDto {
   @IsNotEmpty()
   @IsString()
   productId: string;
-}
-
-export class ReturnCartDataDto {
-  userId: string;
-  products: Array<ModelArray>;
-}
-interface CartProduct {
-  productId: string;
-  quantity: number;
-  _id: string;
-}
-
-export interface FindCartInterface {
-  userId: string;
-  products: CartProduct[];
 }

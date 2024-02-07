@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.model';
-import { Model, Types } from 'mongoose';
-import {
-  AddToCartDto,
-  FindCartInterface,
-  RemoveSpecificItemDto,
-} from './dto/cart.dto';
+import { Model } from 'mongoose';
+import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
+import { FindCartInterface } from './interfaces/cart.interface';
 
 @Injectable()
 export class CartService {
@@ -77,7 +74,7 @@ export class CartService {
     const cartData = await this.cartModel.aggregate([
       {
         $match: {
-          userId: new Types.ObjectId(userId),
+          userId,
         },
       },
       {
@@ -97,7 +94,7 @@ export class CartService {
         },
       },
     ]);
-    if (cartData.length == 0) {
+    if (!cartData.length) {
       throw Error('No Such User Found');
     }
 

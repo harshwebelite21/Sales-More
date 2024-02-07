@@ -25,5 +25,6 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-unsafe-argument': ['off'],
     'object-shorthand': ['error', 'always'],
+    
   },
 };

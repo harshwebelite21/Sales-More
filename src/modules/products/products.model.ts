@@ -1,59 +1,33 @@
-import { Schema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export const ProductSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    availableQuantity: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    category: {
-      type: Number,
-      required: true,
-    },
-    attributes: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        value: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-  },
-  {
-    timestamps: true, // Add createdAt and updatedAt fields
-  },
-);
-
-export interface Product {
+@Schema({ timestamps: true })
+export class Product extends Document {
+  @Prop({ type: String, required: true, unique: true })
   name: string;
+
+  @Prop({ type: String, required: true })
   description: string;
+
+  @Prop({ type: Number, required: true, default: 0 })
   price: number;
+
+  @Prop({ type: Number, required: true, default: 0 })
   availableQuantity: number;
-  category: CategoryEnum;
-  attributes: Array<{
-    name: string;
-    value: string;
-  }>;
+
+  @Prop({ type: Number, required: true })
+  category: number;
+
+  @Prop([
+    {
+      name: { type: String, required: true },
+      value: { type: String, required: true },
+    },
+  ])
+  attributes: { name: string; value: string }[];
 }
+
+export const ProductSchema = SchemaFactory.createForClass(Product);
 
 // category.enum.ts
 export enum CategoryEnum {

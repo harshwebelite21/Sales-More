@@ -8,12 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import {
-  AddToCartDto,
-  FindCartInterface,
-  RemoveSpecificItemDto,
-} from './dto/cart.dto';
+import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { SuccessMessageDTO } from '../products/dto/product.dto';
+import { FindCartInterface } from './interfaces/cart.interface';
 
 @Controller('cart')
 export class CartController {
