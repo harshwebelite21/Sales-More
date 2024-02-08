@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
-import { SuccessMessageDTO } from '../products/dto/product.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
+import { SuccessMessageDTO } from 'src/dtos';
 
 @Controller('cart')
 export class CartController {

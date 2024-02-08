@@ -2,10 +2,10 @@ import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { SuccessMessageDTO } from '../products/dto/product.dto';
 import { Order } from './order.model';
 import { OrderFilterType } from './interfaces/order.interface';
 import { OrderQueryInputDto } from './dto/order.dto';
+import { SuccessMessageDTO } from 'src/dtos';
 
 @Controller('order')
 @UseGuards(AuthGuard)

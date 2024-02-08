@@ -6,8 +6,9 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { CategoryEnum, SortEnum } from '../products.model';
 import { Transform } from 'class-transformer';
+import { CategoryEnum } from '../products.model';
+import { SortEnum } from 'src/enums';
 
 export class AddProductDto {
   @IsNotEmpty()
@@ -109,9 +110,4 @@ export class FilterProductDto {
   @IsOptional()
   @IsEnum(SortEnum)
   sortOrder?: SortEnum;
-}
-
-export class SuccessMessageDTO {
-  success: boolean;
-  message: string;
 }

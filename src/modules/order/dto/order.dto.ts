@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { SortEnum } from '../order.model';
+import { SortEnum } from 'src/enums';
 
 export class OrderQueryInputDto {
   @IsString()

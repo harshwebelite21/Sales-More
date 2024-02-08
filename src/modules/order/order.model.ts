@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+
 @Schema({ timestamps: true })
 export class Order extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User' })
@@ -18,8 +19,3 @@ export class Order extends Document {
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
-
-export enum SortEnum {
-  ASC = 'asc',
-  DESC = 'desc',
-}

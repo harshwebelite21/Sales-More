@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, SortEnum } from './order.model';
 import { Model, PipelineStage, Types } from 'mongoose';
+import { Order } from './order.model';
 import { Cart } from '../cart/cart.model';
 import { Product } from '../products/products.model';
 import { OrderFilterType } from './interfaces/order.interface';
+import { SortEnum } from 'src/enums';
+import { OrderQueryInputDto } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -80,7 +82,7 @@ export class OrderService {
       .lean();
   }
 
-  async filterOrder(queryData): Promise<OrderFilterType[]> {
+  async filterOrder(queryData: OrderQueryInputDto): Promise<OrderFilterType[]> {
     const {
       userId,
       productId,
@@ -88,7 +90,7 @@ export class OrderService {
       minAmount,
       pageNumber = 1,
       pageSize = 10,
-      sortBy,
+      sortBy = 'createdAt',
       sortOrder,
     } = queryData;
 

@@ -36,8 +36,3 @@ export enum CategoryEnum {
   HomeAndFurniture,
   SportsAndOutdoors,
 }
-
-export enum SortEnum {
-  ASC = 'asc',
-  DESC = 'desc',
-}

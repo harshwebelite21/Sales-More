@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cart } from './cart.model';
 import { Model } from 'mongoose';
+import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
 import { Product } from '../products/products.model';
@@ -17,14 +17,17 @@ export class CartService {
   // Create a cart
   async addToCart(body: AddToCartDto): Promise<void> {
     const { userId, products } = body;
-    const productId = products[0].productId;
-    const productAvailable = await this.productModel.findOne({
-      _id: productId,
-    });
+    const promises = products.map(async (product) => {
+      const productId = product.productId;
+      const productAvailable = await this.productModel.findOne({
+        _id: productId,
+      });
 
-    if (!productAvailable || productAvailable.availableQuantity < 1) {
-      throw Error('Product Not Available');
-    }
+      if (!productAvailable || productAvailable.availableQuantity < 1) {
+        throw new Error(`Product with ID ${productId} is Not Available`);
+      }
+    });
+    await Promise.all(promises);
 
     // Check users cart available or not
     const availableUser = await this.cartModel.findOne({ userId });

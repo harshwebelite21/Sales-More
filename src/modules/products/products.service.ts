@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import { Product, SortEnum } from './products.model';
+import { Product } from './products.model';
 import {
   AddProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
+import { SortEnum } from 'src/enums';
 
 @Injectable()
 export class ProductService {

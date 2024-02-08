@@ -11,11 +11,11 @@ import { ProductService } from './products.service';
 import {
   AddProductDto,
   FilterProductDto,
-  SuccessMessageDTO,
   UpdateProductDto,
 } from './dto/product.dto';
 import { Product } from './products.model';
 import { GetProductId } from './productId.decorator';
+import { SuccessMessageDTO } from 'src/dtos';
 
 @Controller('product')
 export class ProductController {
