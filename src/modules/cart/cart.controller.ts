@@ -7,9 +7,10 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { SuccessMessageDTO } from 'src/interfaces';
+
 import { CartService } from './cart.service';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
-import { SuccessMessageDTO } from '../products/dto/product.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
 
 @Controller('cart')

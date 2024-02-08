@@ -1,21 +1,57 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cart } from './cart.model';
 import { Model } from 'mongoose';
+
+import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
+import { Product } from '../products/products.model';
 
 @Injectable()
 export class CartService {
-  constructor(@InjectModel('Cart') private readonly cartModel: Model<Cart>) {}
+  constructor(
+    @InjectModel('Cart') private readonly cartModel: Model<Cart>,
+    @InjectModel('Product')
+    private readonly productModel: Model<Product>,
+  ) {}
 
   // Create a cart
   async addToCart(body: AddToCartDto): Promise<void> {
     const { userId, products } = body;
 
+    const productIds = products.map((product) => product.productId);
+
+    // Fetch all products at once
+    const productsWithIds = await this.productModel.find({
+      _id: { $in: productIds },
+    });
+
+    // Create a map of available product IDs to their quantities
+    const availableProductMap: Array<{ productId: string; qty: number }> = [];
+    productsWithIds.forEach((product) => {
+      availableProductMap.push({
+        productId: product._id.toString(),
+        qty: product.availableQuantity,
+      });
+    });
+
+    // Check if any product is not available
+    const unavailableProduct = products.find((product) => {
+      const getProduct = availableProductMap.find(
+        (availableProduct) => availableProduct.productId === product.productId,
+      );
+      return !getProduct?.qty;
+    });
+
+    if (unavailableProduct) {
+      throw new Error(
+        `Product with ID ${unavailableProduct.productId} is Not Available`,
+      );
+    }
+
     // Check users cart available or not
     const availableUser = await this.cartModel.findOne({ userId });
-    // const availableUser = await this.cartModel.exists({ userId });   returns only id;
+    // const availableUser = await this.cartModel.exists({ userId });   returns only id
 
     // If User is available then Added Products to same cart other wise create new cart
     if (availableUser) {

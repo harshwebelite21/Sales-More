@@ -12,12 +12,13 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { UserService } from './user.service';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { User } from './user.model';
-import { GetUserId } from './userId.decorator';
-import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserInterceptor } from 'src/interceptor/interceptor';
+
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { User } from './user.model';
+import { UserService } from './user.service';
+import { GetUserId } from './userId.decorator';
 
 @Controller('user')
 export class UserController {

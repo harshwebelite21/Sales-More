@@ -4,12 +4,7 @@ module.exports = {
     es2021: true,
   },
 
-  plugins: [
-    '@typescript-eslint/eslint-plugin',
-    'unused-imports',
-    'typescript-sort-keys',
-    'import',
-  ],
+  plugins: ['@typescript-eslint/eslint-plugin', 'unused-imports', 'import'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
@@ -34,5 +29,29 @@ module.exports = {
     'object-shorthand': ['error', 'always'],
     '@typescript-eslint/no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
+    'no-multiple-empty-lines': ['error', { max: 1 }],
+    'import/order': [
+      'error',
+      {
+        pathGroups: [
+          {
+            pattern: '~/**',
+            group: 'external',
+            position: 'after',
+          },
+        ],
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'unknown',
+          'index',
+          'object',
+          'type',
+          'sibling',
+          'parent',
+        ],
+      },
+    ],
   },
 };

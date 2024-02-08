@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Response } from 'express';
 import { compare } from 'bcrypt';
-import { User } from './user.model'; // Assuming the model file is named user.model.ts
+import { Response } from 'express';
+import { Model } from 'mongoose';
 import { generateJwtToken } from 'src/utils/jwt';
+
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { User } from './user.model'; // Assuming the model file is named user.model.ts
+import { Cart } from '../cart/cart.model';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<User>,
-    // @InjectModel('Cart') private readonly cartModel: Model<Cart>
+    @InjectModel('Cart') private readonly cartModel: Model<Cart>,
   ) {}
 
   // Validate user login and generate JWT token
@@ -53,6 +55,9 @@ export class UserService {
   // Delete user by userId
   async deleteData(userId): Promise<string> {
     await this.userModel.findByIdAndDelete(userId);
+    // delete all carts that contain the deleted user
+    await this.cartModel.findOneAndDelete({ userId });
+
     return 'User deleted successfully';
   }
 
