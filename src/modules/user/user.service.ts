@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Response } from 'express';
 import { compare } from 'bcrypt';
-import { User } from './user.model'; // Assuming the model file is named user.model.ts
+import { Response } from 'express';
+import { Model } from 'mongoose';
 import { generateJwtToken } from 'src/utils/jwt';
-import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+
 import { Cart } from '../cart/cart.model';
+
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { User } from './user.model'; // Assuming the model file is named user.model.ts
 
 @Injectable()
 export class UserService {

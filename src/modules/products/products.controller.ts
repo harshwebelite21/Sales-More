@@ -7,15 +7,16 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ProductService } from './products.service';
+import { SuccessMessageDTO } from 'src/interfaces';
+
 import {
   AddProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { Product } from './products.model';
 import { GetProductId } from './productId.decorator';
-import { SuccessMessageDTO } from 'src/dtos';
+import { Product } from './products.model';
+import { ProductService } from './products.service';
 
 @Controller('product')
 export class ProductController {

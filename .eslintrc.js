@@ -30,5 +30,20 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
     'no-multiple-empty-lines': ['error', { max: 1 }],
+    'import/order': [
+      'error',
+      {
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+        ],
+        'newlines-between': 'always',
+        alphabetize: { order: 'asc', caseInsensitive: true },
+      },
+    ],
   },
 };
