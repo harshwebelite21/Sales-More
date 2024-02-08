@@ -5,10 +5,9 @@ import { Response } from 'express';
 import { Model } from 'mongoose';
 import { generateJwtToken } from 'src/utils/jwt';
 
-import { Cart } from '../cart/cart.model';
-
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
+import { Cart } from '../cart/cart.model';
 
 @Injectable()
 export class UserService {

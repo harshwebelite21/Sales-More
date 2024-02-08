@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Product } from '../products/products.model';
-
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
+import { Product } from '../products/products.model';
 
 @Injectable()
 export class CartService {
@@ -17,51 +16,6 @@ export class CartService {
   ) {}
 
   // Create a cart
-  // async addToCart(body: AddToCartDto): Promise<void> {
-  //   const { userId, products } = body;
-  //   const promises = products.map(async (product) => {
-  //     const productId = product.productId;
-  //     const productAvailable = await this.productModel.findOne({
-  //       _id: productId,
-  //     });
-
-  //     if (!productAvailable || productAvailable.availableQuantity < 1) {
-  //       throw new Error(`Product with ID ${productId} is Not Available`);
-  //     }
-  //   });
-  //   await Promise.all(promises);
-
-  //   // Check users cart available or not
-  //   const availableUser = await this.cartModel.findOne({ userId });
-  //   // const availableUser = await this.cartModel.exists({ userId });   returns only id
-
-  //   // If User is available then Added Products to same cart other wise create new cart
-  //   if (availableUser) {
-  //     // To save the all userId which is saved in user's specific cart
-  //     const allProductIdAvailableInCart = availableUser.products.map(
-  //       ({ productId }) => {
-  //         return productId.toString();
-  //       },
-  //     );
-
-  //     // Create promises for all changes and last they all are resolved
-  //     const promises = products.map(async (element) => {
-  //       if (allProductIdAvailableInCart.includes(element.productId)) {
-  //         await this.cartModel.findOneAndUpdate(
-  //           { userId, 'products.productId': element.productId },
-  //           { $inc: { 'products.$.quantity': element.quantity } },
-  //         );
-  //       } else {
-  //         await this.cartModel.updateOne({ userId }, { $push: { products } });
-  //       }
-  //     });
-
-  //     // Resolve all promises at one time
-  //     await Promise.all(promises);
-  //   } else {
-  //     await this.cartModel.create({ userId, products });
-  //   }
-  // }
   async addToCart(body: AddToCartDto): Promise<void> {
     const { userId, products } = body;
 

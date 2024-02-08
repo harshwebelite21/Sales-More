@@ -3,12 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
 import { SortEnum } from 'src/enums';
 
-import { Cart } from '../cart/cart.model';
-import { Product } from '../products/products.model';
-
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
+import { Product } from '../products/products.model';
+import { Cart } from '../cart/cart.model';
 
 @Injectable()
 export class OrderService {
