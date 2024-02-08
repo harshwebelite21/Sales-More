@@ -16,7 +16,7 @@ export class OrderService {
     @InjectModel('Product') private readonly productModel: Model<Product>,
   ) {}
   // Create a Order
-  async checkOut(userId): Promise<void> {
+  async checkOut(userId: string): Promise<void> {
     // Find the Cart products Of the specific user
     const cartProducts = await this.cartModel
       .findOne(
@@ -73,15 +73,6 @@ export class OrderService {
     await this.cartModel.deleteOne({ userId });
   }
 
-  // View the user data from Order
-  async getOrderHistory(userId): Promise<Order[]> {
-    return this.orderModel
-      .find({ userId })
-      .populate('userId')
-      .populate('products.productId')
-      .lean();
-  }
-
   async filterOrder(queryData: OrderQueryInputDto): Promise<OrderFilterType[]> {
     const {
       userId,
@@ -123,6 +114,62 @@ export class OrderService {
           totalAmount: {
             $sum: '$amount',
           },
+        },
+      },
+      {
+        $project: {
+          Orders: '$Orders',
+          totalAmount: '$totalAmount',
+        },
+      },
+      sortStage,
+    ];
+
+    return this.orderModel.aggregate(pipeline).exec();
+  }
+
+  async filterOrderByUserId(
+    queryData: OrderQueryInputDto,
+    userId: string,
+  ): Promise<OrderFilterType[]> {
+    const {
+      productId,
+      maxAmount,
+      minAmount,
+      pageNumber = 1,
+      pageSize = 10,
+      sortBy = 'createdAt',
+      sortOrder,
+    } = queryData;
+
+    const query = {
+      userId, // Filter by user ID
+      ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
+      ...(maxAmount &&
+        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
+    };
+
+    const sortStage: PipelineStage = {
+      $sort: {
+        [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
+      },
+    };
+
+    const pipeline: PipelineStage[] = [
+      {
+        $match: query,
+      },
+      {
+        $skip: (pageNumber - 1) * pageSize,
+      },
+      {
+        $limit: pageSize,
+      },
+      {
+        $group: {
+          _id: null,
+          Orders: { $push: '$$ROOT' },
+          totalAmount: { $sum: '$amount' },
         },
       },
       {

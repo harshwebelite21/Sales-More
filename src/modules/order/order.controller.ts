@@ -2,17 +2,17 @@ import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { Order } from './order.model';
 import { OrderFilterType } from './interfaces/order.interface';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { SuccessMessageDTO } from 'src/dtos';
+import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
 
-@Controller('order')
+@Controller('/')
 @UseGuards(AuthGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   // Checkout
-  @Post('/')
+  @Post('order/')
   async checkOut(@GetUserId() userId: string): Promise<SuccessMessageDTO> {
     try {
       await this.orderService.checkOut(userId);
@@ -24,21 +24,27 @@ export class OrderController {
   }
   // View Order History using user Specific userId
 
-  @Get('/')
-  async getOrderHistory(@GetUserId() userId: string): Promise<Order[]> {
+  @UseGuards(AuthGuard)
+  @Get('order/filter-order')
+  async filterOrders(
+    @Query() query: OrderQueryInputDto,
+    @GetUserId() userId: string,
+  ): Promise<OrderFilterType[]> {
     try {
-      return this.orderService.getOrderHistory(userId);
+      return this.orderService.filterOrderByUserId(query, userId);
     } catch (error) {
-      console.error('Error during Getting Order History:', error);
+      console.error('Error during Getting Order Filter:', error);
       throw error;
     }
   }
 
-  @Get('/filter-order')
-  async filterOrders(
+  @UseGuards(AdminAuthGuard)
+  @Get('admin/order-history')
+  async administerOrders(
     @Query() query: OrderQueryInputDto,
   ): Promise<OrderFilterType[]> {
     try {
+      // Admin can see all orders
       return this.orderService.filterOrder(query);
     } catch (error) {
       console.error('Error during Getting Order Filter:', error);

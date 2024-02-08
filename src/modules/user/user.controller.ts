@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
   UseInterceptors,
@@ -17,14 +18,18 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
-import { UserInterceptor } from 'src/interceptor/interceptor';
+import {
+  UserInterceptor,
+  UserSignupInterceptor,
+} from 'src/interceptor/interceptor';
+import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
 
-@Controller('user')
+@Controller('/')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // Login route
-  @Post('/login')
+  @Post('user/login')
   @UsePipes(ValidationPipe)
   async login(@Body() body: UserLoginDto, @Res() res: Response): Promise<void> {
     try {
@@ -43,8 +48,9 @@ export class UserController {
   }
 
   // Signup route
-  @Post('/signup')
+  @Post('user/signup')
   @UsePipes(ValidationPipe)
+  @UseInterceptors(UserSignupInterceptor)
   async signup(@Body() body: UserSignupDto): Promise<string> {
     try {
       return this.userService.signUp(body);
@@ -55,7 +61,7 @@ export class UserController {
   }
 
   // Update User route
-  @Put('/')
+  @Put('user/')
   @UseGuards(AuthGuard)
   @UseInterceptors(UserInterceptor)
   async updateUser(
@@ -71,7 +77,7 @@ export class UserController {
   }
 
   // Delete User route
-  @Delete('/')
+  @Delete('user/')
   @UseGuards(AuthGuard)
   async deleteData(@GetUserId() userId: string): Promise<string> {
     try {
@@ -83,7 +89,7 @@ export class UserController {
   }
 
   // Logout route
-  @Get('/logout')
+  @Get('user/logout')
   @UseGuards(AuthGuard)
   async logout(@Res() res: Response): Promise<void> {
     try {
@@ -96,11 +102,23 @@ export class UserController {
   }
 
   // View Particular user route
-  @Get('/')
+  @Get('user/')
   @UseGuards(AuthGuard)
   async viewUser(@GetUserId() userId: string): Promise<User> {
     try {
       return this.userService.viewUser(userId);
+    } catch (error) {
+      console.error('Error during view user:', error);
+      throw error;
+    }
+  }
+
+  // View Particular admin user route
+  @Get('/admin/users')
+  @UseGuards(AdminAuthGuard)
+  async fetchUserList(@Query('name') name: string): Promise<User[]> {
+    try {
+      return this.userService.fetchUserList(name);
     } catch (error) {
       console.error('Error during view user:', error);
       throw error;

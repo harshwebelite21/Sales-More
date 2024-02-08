@@ -28,3 +28,26 @@ export class UserInterceptor implements NestInterceptor {
     );
   }
 }
+
+export class UserSignupInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest();
+
+    // Update the request body
+    if (request.body) {
+      request.body = {
+        name: request.body.name,
+        email: request.body.email,
+        password: request.body.password,
+        age: request.body.age,
+        birthdate: request.body.birthdate,
+      };
+    }
+
+    return next.handle().pipe(
+      map(() => {
+        return `${request.body.name} User Data Added Successfully`;
+      }),
+    );
+  }
+}

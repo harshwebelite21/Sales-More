@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './products.service';
 import {
@@ -16,13 +17,15 @@ import {
 import { Product } from './products.model';
 import { GetProductId } from './productId.decorator';
 import { SuccessMessageDTO } from 'src/dtos';
+import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
 
-@Controller('product')
+@Controller('/')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   // Add a new product
-  @Post('/')
+  @Post('admin/')
+  @UseGuards(AdminAuthGuard)
   async addProducts(@Body() body: AddProductDto): Promise<SuccessMessageDTO> {
     try {
       await this.productService.addProducts(body);
@@ -34,7 +37,8 @@ export class ProductController {
   }
 
   // Update product details
-  @Put('/:productId')
+  @Put('admin/:productId')
+  @UseGuards(AdminAuthGuard)
   async updateProduct(
     @GetProductId() productId: string,
     @Body() body: UpdateProductDto,
@@ -49,7 +53,8 @@ export class ProductController {
   }
 
   // Delete a product
-  @Delete('/:productId')
+  @Delete('admin/:productId')
+  @UseGuards(AdminAuthGuard)
   async deleteProduct(
     @GetProductId() productId: string,
   ): Promise<SuccessMessageDTO> {
@@ -63,7 +68,7 @@ export class ProductController {
   }
 
   // Filter Product
-  @Get('/')
+  @Get('product/')
   async filterProduct(@Query() query: FilterProductDto): Promise<Product[]> {
     return this.productService.filterProduct(query);
   }

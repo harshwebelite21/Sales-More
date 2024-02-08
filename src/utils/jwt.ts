@@ -16,18 +16,10 @@ export const generateJwtToken = (payload, options) => {
 // Verify the provided JWT token
 export const verifyJwtToken = (cookieToken) => {
   try {
-    const decodedToken = verify(cookieToken, appConfig.jwtKey);
-    const userId = decodedToken ? decodedToken.userId : null;
-    return userId;
+    const { userId, role } = verify(cookieToken, appConfig.jwtKey) || {};
+    return { userId, role };
   } catch (err) {
     console.error('Error while verifying token:', err);
     return false;
   }
 };
-
-// Decode the provided JWT token to retrieve the userId
-// export function decodeJwtToken(cookieToken) {
-//   const decodedToken = decode(cookieToken, appConfig.jwtKey);
-//   const userId = decodedToken ? decodedToken.userId : null;
-//   return userId;
-// }

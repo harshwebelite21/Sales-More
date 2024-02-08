@@ -38,6 +38,9 @@ export class User extends Document {
 
   @Prop({ type: Date, required: true })
   birthdate: Date;
+
+  @Prop({ type: Number, required: true, default: 2 })
+  role: RoleEnum;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
 
@@ -68,3 +71,8 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
     next(err);
   }
 });
+
+export enum RoleEnum {
+  admin = 1,
+  user,
+}

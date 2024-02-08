@@ -31,7 +31,7 @@ export class UserService {
     }
     // Generate JWT token
     const token = generateJwtToken(
-      { userId: userData._id },
+      { userId: userData._id, role: userData.role },
       { expiresIn: '1d' },
     );
 
@@ -68,6 +68,17 @@ export class UserService {
   // View user data by userId
   async viewUser(userId: string): Promise<User> {
     const userData = await this.userModel.findById(userId).lean();
+    if (!userData) {
+      throw new Error('User data not found');
+    }
+    return userData;
+  }
+
+  // View user data by userId
+  async fetchUserList(name: string): Promise<User[]> {
+    const regex = new RegExp(name, 'i');
+    const userData = await this.userModel.find({ name: regex }).lean();
+
     if (!userData) {
       throw new Error('User data not found');
     }
