@@ -13,16 +13,16 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { UserService } from './user.service';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { User } from './user.model';
-import { GetUserId } from './userId.decorator';
-import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import {
   UserInterceptor,
   UserSignupInterceptor,
 } from 'src/interceptor/interceptor';
 import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { User } from './user.model';
+import { GetUserId } from './userId.decorator';
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { UserService } from './user.service';
 
 @Controller('/')
 export class UserController {

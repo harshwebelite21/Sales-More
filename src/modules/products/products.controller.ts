@@ -8,16 +8,17 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ProductService } from './products.service';
+import { SuccessMessageDTO } from 'src/interfaces';
+
+import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
 import {
   AddProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { Product } from './products.model';
 import { GetProductId } from './productId.decorator';
-import { SuccessMessageDTO } from 'src/dtos';
-import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { Product } from './products.model';
+import { ProductService } from './products.service';
 
 @Controller('/')
 export class ProductController {

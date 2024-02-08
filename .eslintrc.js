@@ -30,5 +30,28 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
     'no-multiple-empty-lines': ['error', { max: 1 }],
+    'import/order': [
+      'error',
+      {
+        pathGroups: [
+          {
+            pattern: '~/**',
+            group: 'external',
+            position: 'after',
+          },
+        ],
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'unknown',
+          'index',
+          'object',
+          'type',
+          'sibling',
+          'parent',
+        ],
+      },
+    ],
   },
 };

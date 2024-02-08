@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -6,9 +7,9 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { CategoryEnum } from '../products.model';
 import { SortEnum } from 'src/enums';
+
+import { CategoryEnum } from '../products.model';
 
 export class AddProductDto {
   @IsNotEmpty()

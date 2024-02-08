@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
@@ -17,17 +18,36 @@ export class CartService {
   // Create a cart
   async addToCart(body: AddToCartDto): Promise<void> {
     const { userId, products } = body;
-    const promises = products.map(async (product) => {
-      const productId = product.productId;
-      const productAvailable = await this.productModel.findOne({
-        _id: productId,
-      });
 
-      if (!productAvailable || productAvailable.availableQuantity < 1) {
-        throw new Error(`Product with ID ${productId} is Not Available`);
-      }
+    const productIds = products.map((product) => product.productId);
+
+    // Fetch all products at once
+    const productsWithIds = await this.productModel.find({
+      _id: { $in: productIds },
     });
-    await Promise.all(promises);
+
+    // Create a map of available product IDs to their quantities
+    const availableProductMap: Array<{ productId: string; qty: number }> = [];
+    productsWithIds.forEach((product) => {
+      availableProductMap.push({
+        productId: product._id.toString(),
+        qty: product.availableQuantity,
+      });
+    });
+
+    // Check if any product is not available
+    const unavailableProduct = products.find((product) => {
+      const getProduct = availableProductMap.find(
+        (availableProduct) => availableProduct.productId === product.productId,
+      );
+      return !getProduct?.qty;
+    });
+
+    if (unavailableProduct) {
+      throw new Error(
+        `Product with ID ${unavailableProduct.productId} is Not Available`,
+      );
+    }
 
     // Check users cart available or not
     const availableUser = await this.cartModel.findOne({ userId });

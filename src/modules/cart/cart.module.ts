@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CartService } from './cart.service';
+
 import { CartController } from './cart.controller';
-import { DatabaseModule } from '../database/database.module';
 import { CartSchema } from './cart.model';
+import { CartService } from './cart.service';
 import { ProductSchema } from '../products/products.model';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [
