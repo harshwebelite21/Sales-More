@@ -11,6 +11,7 @@ import {
 import { SuccessMessageDTO } from 'src/interfaces';
 
 import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import {
   AddProductDto,
   FilterProductDto,
@@ -21,12 +22,14 @@ import { Product } from './products.model';
 import { ProductService } from './products.service';
 
 @Controller('/')
+@ApiTags('Products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   // Add a new product
   @Post('admin/')
   @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async addProducts(@Body() body: AddProductDto): Promise<SuccessMessageDTO> {
     try {
       await this.productService.addProducts(body);
@@ -40,6 +43,7 @@ export class ProductController {
   // Update product details
   @Put('admin/:productId')
   @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async updateProduct(
     @GetProductId() productId: string,
     @Body() body: UpdateProductDto,
@@ -56,6 +60,7 @@ export class ProductController {
   // Delete a product
   @Delete('admin/:productId')
   @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async deleteProduct(
     @GetProductId() productId: string,
   ): Promise<SuccessMessageDTO> {

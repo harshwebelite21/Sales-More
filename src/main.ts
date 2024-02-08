@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { appConfig } from './config/appConfig';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
@@ -17,6 +18,25 @@ async function bootstrap(): Promise<void> {
       skipMissingProperties: false, // Throws an error if a DTO property is missing in the payload
     }),
   );
+  const options = new DocumentBuilder()
+    .setTitle('E-commerce')
+    .setDescription('E com app')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT Token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
   await app.listen(appConfig.port);
 }
 bootstrap().catch((error) => {

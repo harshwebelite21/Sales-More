@@ -19,12 +19,14 @@ import {
   UserSignupInterceptor,
 } from 'src/interceptor/interceptor';
 import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
 @Controller('/')
+@ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -40,7 +42,7 @@ export class UserController {
       res.cookie('jwtToken', token, { httpOnly: true });
 
       // Send a success response
-      res.send('Login Successful');
+      res.send(`Token :- ${token}       Login Successful`);
     } catch (error) {
       console.error('Error during login:', error);
       throw error;
@@ -63,6 +65,7 @@ export class UserController {
   // Update User route
   @Put('user/')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   @UseInterceptors(UserInterceptor)
   async updateUser(
     @GetUserId() userId: string,
@@ -79,6 +82,7 @@ export class UserController {
   // Delete User route
   @Delete('user/')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   async deleteData(@GetUserId() userId: string): Promise<string> {
     try {
       return this.userService.deleteData(userId);
@@ -91,6 +95,7 @@ export class UserController {
   // Logout route
   @Get('user/logout')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   async logout(@Res() res: Response): Promise<void> {
     try {
       this.userService.logout(res);
@@ -104,6 +109,7 @@ export class UserController {
   // View Particular user route
   @Get('user/')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   async viewUser(@GetUserId() userId: string): Promise<User> {
     try {
       return this.userService.viewUser(userId);
@@ -116,6 +122,7 @@ export class UserController {
   // View Particular admin user route
   @Get('/admin/users')
   @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async fetchUserList(@Query('name') name: string): Promise<User[]> {
     try {
       return this.userService.fetchUserList(name);

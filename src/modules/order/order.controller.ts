@@ -3,13 +3,16 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { SuccessMessageDTO } from 'src/interfaces';
 
 import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 
 @Controller('/')
+@ApiTags('Order')
 @UseGuards(AuthGuard)
+@ApiSecurity('JWT-auth')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   // Checkout
@@ -26,6 +29,7 @@ export class OrderController {
   // View Order History using user Specific userId
 
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   @Get('order/filter-order')
   async filterOrders(
     @Query() query: OrderQueryInputDto,
@@ -40,6 +44,7 @@ export class OrderController {
   }
 
   @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   @Get('admin/order-history')
   async administerOrders(
     @Query() query: OrderQueryInputDto,
