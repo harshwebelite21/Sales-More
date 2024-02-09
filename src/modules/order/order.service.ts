@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage, Types } from 'mongoose';
+import { Model, PipelineStage } from 'mongoose';
 import { SortEnum } from 'src/enums';
 
+import { UserIdRole } from 'src/interfaces';
 import { OrderQueryInputDto } from './dto/order.dto';
-import { OrderFilterType, UserIdRole } from './interfaces/order.interface';
+import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
+import { RoleEnum } from '../user/user.model';
 
 @Injectable()
 export class OrderService {
@@ -17,8 +19,8 @@ export class OrderService {
     @InjectModel('Product') private readonly productModel: Model<Product>,
   ) {}
   // Create a Order
-  async checkOut(userId: string): Promise<void> {
-    // Find the Cart products Of the specific user
+  async checkOut(userData: UserIdRole): Promise<void> {
+    const userId = userData.userId;
     const cartProducts = await this.cartModel
       .findOne(
         {
@@ -79,8 +81,8 @@ export class OrderService {
     userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     const {
-      userId,
-      productId,
+      userName = 'A',
+      productName = 'A',
       maxAmount,
       minAmount,
       pageNumber = 1,
@@ -88,12 +90,15 @@ export class OrderService {
       sortBy = 'createdAt',
       sortOrder,
     } = queryData;
-
+    const regex = new RegExp(userName, 'i');
+    const productRegex = new RegExp(productName, 'i');
+    const { role, userId } = userData;
     const query = {
-      ...(userData.role === 1 && userId && { userId }),
-      ...(userData.role === 2 &&
-        userData.userId && { userId: userData.userId }),
-      ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
+      ...(role === RoleEnum.admin && userName && { 'user.name': regex }),
+      ...(role === RoleEnum.user && userId && { userId }),
+      ...(productName && {
+        'productsData.name': productRegex,
+      }),
       ...(maxAmount &&
         minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
     };
@@ -105,6 +110,22 @@ export class OrderService {
     };
 
     const pipeline: PipelineStage[] = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productsData',
+        },
+      },
       {
         $match: query,
       },

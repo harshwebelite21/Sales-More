@@ -7,12 +7,12 @@ export class OrderQueryInputDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  userId?: string;
+  userName?: string;
 
   @IsString()
   @ApiProperty({ required: false })
   @IsOptional()
-  productId?: string;
+  productName?: string;
 
   @IsNumber()
   @ApiProperty({ required: false })

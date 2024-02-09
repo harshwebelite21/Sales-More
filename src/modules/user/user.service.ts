@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
-import { Model } from 'mongoose';
 import { generateJwtToken } from 'src/utils/jwt';
 
+import { Model, Types } from 'mongoose';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { Cart } from '../cart/cart.model';
@@ -47,13 +47,16 @@ export class UserService {
   }
 
   // Update user data by userId
-  async updateUser(userId: string, body: UserUpdateDto): Promise<string> {
+  async updateUser(
+    userId: Types.ObjectId,
+    body: UserUpdateDto,
+  ): Promise<string> {
     await this.userModel.findOneAndUpdate({ _id: userId }, body);
     return 'User data updated successfully';
   }
 
   // Delete user by userId
-  async deleteData(userId): Promise<string> {
+  async deleteData(userId: Types.ObjectId): Promise<string> {
     await this.userModel.findByIdAndDelete(userId);
     // delete all carts that contain the deleted user
     await this.cartModel.findOneAndDelete({ userId });
@@ -67,7 +70,7 @@ export class UserService {
   }
 
   // View user data by userId
-  async viewUser(userId: string): Promise<User> {
+  async viewUser(userId: Types.ObjectId): Promise<User> {
     const userData = await this.userModel.findById(userId).lean();
     if (!userData) {
       throw new Error('User data not found');

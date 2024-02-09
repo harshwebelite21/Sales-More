@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsInt,
@@ -7,12 +7,13 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class AddToCartDto {
   @IsNotEmpty()
-  @IsString()
   @ApiProperty()
-  userId: string;
+  @Transform(({ value }) => new Types.ObjectId(value))
+  userId: Types.ObjectId;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -36,8 +37,8 @@ export class Products {
 export class RemoveSpecificItemDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  userId: string;
+  @Transform(({ value }) => new Types.ObjectId(value))
+  userId: Types.ObjectId;
 
   @ApiProperty()
   @IsNotEmpty()

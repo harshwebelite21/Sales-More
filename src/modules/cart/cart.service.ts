@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { convertToObjectId } from 'src/utils/converter';
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
@@ -82,7 +83,8 @@ export class CartService {
   }
 
   //  Delete data from cart
-  async removeFromCart(userId: string): Promise<void> {
+  async removeFromCart(id: string): Promise<void> {
+    const userId = convertToObjectId(id);
     await this.cartModel.findOneAndDelete({ userId });
   }
 
@@ -106,7 +108,8 @@ export class CartService {
   }
 
   // View the user data from cart
-  async findCart(userId: string): Promise<FindCartInterface[]> {
+  async findCart(id: string): Promise<FindCartInterface[]> {
+    const userId = convertToObjectId(id);
     const cartData = await this.cartModel.aggregate([
       {
         $match: {

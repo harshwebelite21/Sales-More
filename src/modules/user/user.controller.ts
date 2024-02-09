@@ -20,6 +20,7 @@ import {
 } from 'src/interceptor/interceptor';
 import { AdminAuthGuard } from 'src/guards/admin-role.guard';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { UserIdRole } from 'src/interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
@@ -68,7 +69,7 @@ export class UserController {
   @ApiSecurity('JWT-auth')
   @UseInterceptors(UserInterceptor)
   async updateUser(
-    @GetUserId() userId: string,
+    @GetUserId() { userId }: UserIdRole,
     @Body() body: UserUpdateDto,
   ): Promise<string> {
     try {
@@ -83,7 +84,7 @@ export class UserController {
   @Delete('user/')
   @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
-  async deleteData(@GetUserId() userId: string): Promise<string> {
+  async deleteData(@GetUserId() { userId }: UserIdRole): Promise<string> {
     try {
       return this.userService.deleteData(userId);
     } catch (error) {
@@ -110,7 +111,7 @@ export class UserController {
   @Get('user/')
   @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
-  async viewUser(@GetUserId() userId: string): Promise<User> {
+  async viewUser(@GetUserId() { userId }: UserIdRole): Promise<User> {
     try {
       return this.userService.viewUser(userId);
     } catch (error) {
