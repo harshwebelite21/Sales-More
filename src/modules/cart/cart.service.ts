@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { convertToObjectId } from 'src/utils/converter';
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
-import { FindCartInterface } from './interfaces/cart.interface';
+import { CartProduct, FindCartInterface } from './interfaces/cart.interface';
 import { Product } from '../products/products.model';
 
 @Injectable()
@@ -78,7 +78,26 @@ export class CartService {
       // Resolve all promises at one time
       await Promise.all(promises);
     } else {
-      await this.cartModel.create({ userId, products });
+      const mergedProductsMap: { [productId: string]: number } = {};
+
+      // Iterate over products and merge quantities by productId
+      products.forEach((product) => {
+        if (mergedProductsMap[product.productId] === undefined) {
+          mergedProductsMap[product.productId] = product.quantity;
+        } else {
+          mergedProductsMap[product.productId] += product.quantity;
+        }
+      });
+
+      // Convert mergedProductsMap back to array of Product objects
+      const mergedProducts: CartProduct[] = Object.entries(
+        mergedProductsMap,
+      ).map(([productId, quantity]) => ({
+        productId,
+        quantity,
+      }));
+
+      await this.cartModel.create({ userId, mergedProducts });
     }
   }
 

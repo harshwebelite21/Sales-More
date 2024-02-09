@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -17,7 +18,6 @@ import {
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { GetProductId } from './productId.decorator';
 import { Product } from './products.model';
 import { ProductService } from './products.service';
 
@@ -45,7 +45,7 @@ export class ProductController {
   @UseGuards(AdminAuthGuard)
   @ApiSecurity('JWT-auth')
   async updateProduct(
-    @GetProductId() productId: string,
+    @Param('productId') productId: string,
     @Body() body: UpdateProductDto,
   ): Promise<SuccessMessageDTO> {
     try {
@@ -62,7 +62,7 @@ export class ProductController {
   @UseGuards(AdminAuthGuard)
   @ApiSecurity('JWT-auth')
   async deleteProduct(
-    @GetProductId() productId: string,
+    @Param('productId') productId: string,
   ): Promise<SuccessMessageDTO> {
     try {
       await this.productService.deleteProduct(productId);
