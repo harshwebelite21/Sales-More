@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser'; // Import cookie-parser
 
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -11,7 +12,14 @@ import { ProductModule } from './modules/products/products.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [UserModule, DatabaseModule, ProductModule, CartModule, OrderModule],
+  imports: [
+    UserModule,
+    DatabaseModule,
+    ProductModule,
+    CartModule,
+    OrderModule,
+    ScheduleModule.forRoot(),
+  ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],
 })
