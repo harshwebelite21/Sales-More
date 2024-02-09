@@ -97,7 +97,7 @@ export class CartService {
         quantity,
       }));
 
-      await this.cartModel.create({ userId, mergedProducts });
+      await this.cartModel.create({ userId, products: mergedProducts });
     }
   }
 
