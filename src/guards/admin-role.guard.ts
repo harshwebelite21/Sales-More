@@ -18,20 +18,16 @@ export class AdminAuthGuard implements CanActivate {
 
       const validToken = verifyJwtToken(token);
 
-      if (!validToken) {
-        throw new Error('Invalid token.');
-      }
-
-      // Assuming your JWT payload includes the user's role
-      const { userId, role } = validToken;
-
-      if (!userId || role !== RoleEnum.admin) {
+      if (
+        !validToken ||
+        !validToken.userId ||
+        validToken.role !== RoleEnum.admin
+      ) {
         throw new Error('Unauthorized. Admin role required.');
       }
 
-      request.userId = userId;
-      request.role = role;
-      // Attach userId to request
+      request.userId = validToken.userId;
+      request.role = validToken.role;
 
       return true;
     } catch (error) {

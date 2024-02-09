@@ -4,7 +4,7 @@ import { Model, PipelineStage, Types } from 'mongoose';
 import { SortEnum } from 'src/enums';
 
 import { OrderQueryInputDto } from './dto/order.dto';
-import { OrderFilterType } from './interfaces/order.interface';
+import { OrderFilterType, UserIdRole } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
@@ -74,7 +74,10 @@ export class OrderService {
     await this.cartModel.deleteOne({ userId });
   }
 
-  async filterOrder(queryData: OrderQueryInputDto): Promise<OrderFilterType[]> {
+  async filterOrder(
+    queryData: OrderQueryInputDto,
+    userData: UserIdRole,
+  ): Promise<OrderFilterType[]> {
     const {
       userId,
       productId,
@@ -87,64 +90,9 @@ export class OrderService {
     } = queryData;
 
     const query = {
-      ...(userId && { userId: new Types.ObjectId(userId) }),
-      ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
-      ...(maxAmount &&
-        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
-    };
-    const sortStage: PipelineStage = {
-      $sort: {
-        [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
-      },
-    };
-
-    const pipeline: PipelineStage[] = [
-      {
-        $match: query,
-      },
-      {
-        $skip: (pageNumber - 1) * pageSize, // Skip documents based on the page number
-      },
-      {
-        $limit: pageSize, // Limit the number of documents per page
-      },
-      {
-        $group: {
-          _id: null,
-          Orders: { $push: '$$ROOT' },
-          totalAmount: {
-            $sum: '$amount',
-          },
-        },
-      },
-      {
-        $project: {
-          Orders: '$Orders',
-          totalAmount: '$totalAmount',
-        },
-      },
-      sortStage,
-    ];
-
-    return this.orderModel.aggregate(pipeline).exec();
-  }
-
-  async filterOrderByUserId(
-    queryData: OrderQueryInputDto,
-    userId: string,
-  ): Promise<OrderFilterType[]> {
-    const {
-      productId,
-      maxAmount,
-      minAmount,
-      pageNumber = 1,
-      pageSize = 10,
-      sortBy = 'createdAt',
-      sortOrder,
-    } = queryData;
-
-    const query = {
-      userId, // Filter by user ID
+      ...(userData.role === 1 && userId && { userId }),
+      ...(userData.role === 2 &&
+        userData.userId && { userId: userData.userId }),
       ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
       ...(maxAmount &&
         minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),

@@ -17,19 +17,13 @@ export class AuthGuard implements CanActivate {
 
       const validToken = verifyJwtToken(token);
 
-      if (!validToken) {
-        throw new Error('Invalid token.');
+      if (!validToken || !validToken.userId || !validToken.role) {
+        throw new Error('Invalid token or unauthorized.');
       }
 
-      // Assuming your JWT payload
-      const { userId } = validToken;
-
-      if (!userId) {
-        throw new Error('Unauthorized');
-      }
-
-      request.userId = userId;
-      // Attach userId to request
+      // Attach userId and role to request
+      request.userId = validToken.userId;
+      request.role = validToken.role;
 
       return true;
     } catch (error) {

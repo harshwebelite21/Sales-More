@@ -2,10 +2,9 @@ import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { SuccessMessageDTO } from 'src/interfaces';
 
-import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { OrderQueryInputDto } from './dto/order.dto';
-import { OrderFilterType } from './interfaces/order.interface';
+import { OrderFilterType, UserIdRole } from './interfaces/order.interface';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 
@@ -30,28 +29,13 @@ export class OrderController {
 
   @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
-  @Get('order/filter-order')
+  @Get('order/order-history')
   async filterOrders(
     @Query() query: OrderQueryInputDto,
-    @GetUserId() userId: string,
+    @GetUserId() userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     try {
-      return this.orderService.filterOrderByUserId(query, userId);
-    } catch (error) {
-      console.error('Error during Getting Order Filter:', error);
-      throw error;
-    }
-  }
-
-  @UseGuards(AdminAuthGuard)
-  @ApiSecurity('JWT-auth')
-  @Get('admin/order-history')
-  async administerOrders(
-    @Query() query: OrderQueryInputDto,
-  ): Promise<OrderFilterType[]> {
-    try {
-      // Admin can see all orders
-      return this.orderService.filterOrder(query);
+      return this.orderService.filterOrder(query, userData);
     } catch (error) {
       console.error('Error during Getting Order Filter:', error);
       throw error;

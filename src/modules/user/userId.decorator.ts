@@ -8,9 +8,10 @@ export const GetUserId = createParamDecorator(
     const context = executionContext.switchToHttp();
     const request: RequestWithUser = context.getRequest<RequestWithUser>();
     const userId = request.userId;
-    if (!userId) {
+    const role = request.role;
+    if (!userId && !role) {
       throw Error('User Id Not Found In UserId Decoder');
     }
-    return userId;
+    return { userId, role };
   },
 );

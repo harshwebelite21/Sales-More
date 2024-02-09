@@ -6,7 +6,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    console.log('🚀 ~ GlobalExceptionFilter ~ response:', response);
     const status = 500;
     const message = exception.message || 'Internal Server Error';
     console.log('🚀 ~ GlobalExceptionFilter ~ error:', exception);

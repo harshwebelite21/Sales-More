@@ -18,7 +18,7 @@ import {
   UserInterceptor,
   UserSignupInterceptor,
 } from 'src/interceptor/interceptor';
-import { AdminAuthGuard } from 'src/guards/admin.auth.guard';
+import { AdminAuthGuard } from 'src/guards/admin-role.guard';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
