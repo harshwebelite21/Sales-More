@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { convertToObjectId } from 'src/utils/converter';
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { CartProduct, FindCartInterface } from './interfaces/cart.interface';
 import { Product } from '../products/products.model';
+
+// Define the MergedProductsMap type
+type MergedProductsMap = { [productId: string]: number };
 
 @Injectable()
 export class CartService {
@@ -18,7 +21,8 @@ export class CartService {
 
   // Create a cart
   async addToCart(body: AddToCartDto): Promise<void> {
-    const { userId, products } = body;
+    const { products } = body;
+    const userId = new Types.ObjectId(body.userId);
 
     const productIds = products.map((product) => product.productId);
 
@@ -52,7 +56,6 @@ export class CartService {
 
     // Check users cart available or not
     const availableUser = await this.cartModel.findOne({ userId });
-    // const availableUser = await this.cartModel.exists({ userId });   returns only id
 
     // If User is available then Added Products to same cart other wise create new cart
     if (availableUser) {
@@ -78,26 +81,17 @@ export class CartService {
       // Resolve all promises at one time
       await Promise.all(promises);
     } else {
-      const mergedProductsMap: { [productId: string]: number } = {};
+      const mergedProducts: CartProduct[] = ((products: CartProduct[]) => {
+        // Merge products by productId
+        const mergedProductsMap = this.mergeProductsByProductId(products);
+        // Convert merged products map to array of CartProduct objects
+        return this.convertToCartProductsArray(mergedProductsMap);
+      })(products);
 
-      // Iterate over products and merge quantities by productId
-      products.forEach((product) => {
-        if (mergedProductsMap[product.productId] === undefined) {
-          mergedProductsMap[product.productId] = product.quantity;
-        } else {
-          mergedProductsMap[product.productId] += product.quantity;
-        }
+      await this.cartModel.create({
+        userId,
+        products: mergedProducts,
       });
-
-      // Convert mergedProductsMap back to array of Product objects
-      const mergedProducts: CartProduct[] = Object.entries(
-        mergedProductsMap,
-      ).map(([productId, quantity]) => ({
-        productId,
-        quantity,
-      }));
-
-      await this.cartModel.create({ userId, products: mergedProducts });
     }
   }
 
@@ -110,7 +104,8 @@ export class CartService {
   // To remove the specific item from cart
 
   async removeSpecificItem(body: RemoveSpecificItemDto): Promise<void> {
-    const { userId, productId } = body;
+    const { productId } = body;
+    const userId = new Types.ObjectId(body.userId);
     const updatedCart = await this.cartModel
       .updateOne(
         {
@@ -123,7 +118,6 @@ export class CartService {
     if (!updatedCart || updatedCart.modifiedCount < 1) {
       throw Error('Cart or item not found');
     }
-    this.checkAndDeleteEmptyCart();
   }
 
   // View the user data from cart
@@ -177,33 +171,28 @@ export class CartService {
     }
   }
 
-  // Automatically Delete cart if it is an empty cart
-  async checkAndDeleteEmptyCart(): Promise<void> {
-    // Find carts with no products
-    const emptyCarts = await this.cartModel.aggregate([
-      {
-        $match: {
-          products: { $exists: true, $size: 0 }, // Match carts with no products
-        },
-      },
-      {
-        $project: {
-          _id: 1, // Project only the _id field for optimization
-        },
-      },
-    ]);
+  // Function to merge products by productId
+  private mergeProductsByProductId(products: CartProduct[]): MergedProductsMap {
+    const mergedProductsMap: MergedProductsMap = {};
 
-    // Extract cart IDs to be deleted
-    const cartIdsToDelete = emptyCarts.map(({ _id }) => _id.toString());
+    products.forEach((product) => {
+      if (mergedProductsMap[product.productId] === undefined) {
+        mergedProductsMap[product.productId] = product.quantity;
+      } else {
+        mergedProductsMap[product.productId] += product.quantity;
+      }
+    });
 
-    // Delete carts with no products
-    if (cartIdsToDelete.length > 0) {
-      const deleteResult = await this.cartModel.deleteMany({
-        _id: { $in: cartIdsToDelete },
-      });
-      console.log(`${deleteResult.deletedCount} cart(s) deleted`);
-    } else {
-      console.log('No empty carts found');
-    }
+    return mergedProductsMap;
+  }
+
+  // Function to convert merged products map to array of CartProduct objects
+  private convertToCartProductsArray(
+    mergedProductsMap: MergedProductsMap,
+  ): CartProduct[] {
+    return Object.entries(mergedProductsMap).map(([productId, quantity]) => ({
+      productId,
+      quantity,
+    }));
   }
 }
