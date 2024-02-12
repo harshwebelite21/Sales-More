@@ -30,6 +30,10 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
     'no-multiple-empty-lines': ['error', { max: 1 }],
+    '@typescript-eslint/explicit-function-return-type': ['error'],
+    '@typescript-eslint/explicit-module-boundary-types': ['error'],
+    '@typescript-eslint/no-inferrable-types': ['error'],
+    '@typescript-eslint/no-explicit-any': ['error'],
     'import/order': [
       'error',
       {
@@ -41,13 +45,13 @@ module.exports = {
           },
         ],
         groups: [
-          'builtin',
           'external',
           'internal',
           'unknown',
           'index',
           'object',
           'type',
+          'builtin',
           'sibling',
           'parent',
         ],

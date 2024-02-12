@@ -81,26 +81,41 @@ export class OrderService {
     userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     const {
-      userName = 'A',
-      productName = 'A',
+      userName,
+      productName,
       maxAmount,
       minAmount,
       pageNumber = 1,
       pageSize = 10,
       sortBy = 'createdAt',
-      sortOrder,
+      sortOrder = SortEnum.DESC,
     } = queryData;
-    const regex = new RegExp(userName, 'i');
-    const productRegex = new RegExp(productName, 'i');
     const { role, userId } = userData;
-    const query = {
-      ...(role === RoleEnum.admin && userName && { 'user.name': regex }),
-      ...(role === RoleEnum.user && userId && { userId }),
-      ...(productName && {
-        'productsData.name': productRegex,
-      }),
+
+    let query = {}; // Define query as an empty object
+
+    // Add conditions based on userName
+    if (userName) {
+      const regex = new RegExp(userName, 'i');
+      query = {
+        ...(role === RoleEnum.admin && { 'user.name': regex }), // Include condition if role is admin
+      };
+    }
+
+    if (productName) {
+      const productRegex = new RegExp(productName, 'i');
+      query = {
+        ...query, // Merge with existing query object
+        'productsData.name': productRegex, // Add condition for product name
+      };
+    }
+
+    // Add conditions based on userId and amount range
+    query = {
+      ...query, // Merge with existing query object
+      ...(role === RoleEnum.user && userId && { userId }), // Include condition if role is user and userId is provided
       ...(maxAmount &&
-        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
+        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }), // Include condition for amount range
     };
 
     const sortStage: PipelineStage = {

@@ -83,7 +83,7 @@ export class FilterProductDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

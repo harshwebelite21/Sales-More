@@ -16,12 +16,12 @@ export class AdminAuthGuard implements CanActivate {
         throw new Error('Access denied. Token not provided.');
       }
 
-      const { id, role } = verifyJwtToken(token);
+      const { userId, role } = verifyJwtToken(token);
 
-      if (!id || role !== RoleEnum.admin) {
+      if (!userId || role !== RoleEnum.admin) {
         throw new Error('Unauthorized. Admin role required.');
       }
-      request.userId = id;
+      request.userId = userId;
       request.role = role;
 
       return true;

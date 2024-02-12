@@ -7,12 +7,11 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
 
 export class AddToCartDto {
   @IsNotEmpty()
   @ApiProperty()
-  userId: Types.ObjectId;
+  userId: string;
 
   @IsNotEmpty()
   @ApiProperty()
@@ -36,7 +35,7 @@ export class Products {
 export class RemoveSpecificItemDto {
   @ApiProperty()
   @IsNotEmpty()
-  userId: Types.ObjectId;
+  userId: string;
 
   @ApiProperty()
   @IsNotEmpty()

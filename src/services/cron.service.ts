@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 export class CronService {
   constructor(@InjectModel('Cart') private readonly cartModel: Model<Cart>) {}
   @Cron('*/20 * * * *')
-  async checkAndDeleteEmptyCart() {
+  async checkAndDeleteEmptyCart(): Promise<void> {
     try {
       const emptyCarts = await this.cartModel.aggregate([
         {

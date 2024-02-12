@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import { RoleEnum } from 'src/modules/user/user.model';
 
 export interface SuccessMessageDTO {
@@ -6,6 +5,6 @@ export interface SuccessMessageDTO {
   message: string;
 }
 export interface UserIdRole {
-  userId: Types.ObjectId;
+  userId: string;
   role: RoleEnum;
 }

@@ -15,14 +15,14 @@ export class AuthGuard implements CanActivate {
         throw new Error('Access denied. Token not provided.');
       }
 
-      const { id, role } = verifyJwtToken(token);
+      const { userId, role } = verifyJwtToken(token);
 
-      if (!id || !role) {
+      if (!userId || !role) {
         throw new Error('Invalid token or unauthorized.');
       }
 
       // Attach userId and role to request
-      request.userId = id;
+      request.userId = userId;
       request.role = role;
 
       return true;

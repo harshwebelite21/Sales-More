@@ -4,7 +4,7 @@ import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { generateJwtToken } from 'src/utils/jwt';
 
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { Cart } from '../cart/cart.model';
@@ -47,16 +47,13 @@ export class UserService {
   }
 
   // Update user data by userId
-  async updateUser(
-    userId: Types.ObjectId,
-    body: UserUpdateDto,
-  ): Promise<string> {
+  async updateUser(userId: string, body: UserUpdateDto): Promise<string> {
     await this.userModel.findOneAndUpdate({ _id: userId }, body);
     return 'User data updated successfully';
   }
 
   // Delete user by userId
-  async deleteData(userId: Types.ObjectId): Promise<string> {
+  async deleteData(userId: string): Promise<string> {
     await this.userModel.findByIdAndDelete(userId);
     // delete all carts that contain the deleted user
     await this.cartModel.findOneAndDelete({ userId });
@@ -70,7 +67,7 @@ export class UserService {
   }
 
   // View user data by userId
-  async viewUser(userId: Types.ObjectId): Promise<User> {
+  async viewUser(userId: string): Promise<User> {
     const userData = await this.userModel.findById(userId).lean();
     if (!userData) {
       throw new Error('User data not found');
@@ -79,9 +76,13 @@ export class UserService {
   }
 
   // View user data by userId
-  async fetchUserList(name: string): Promise<User[]> {
-    const regex = new RegExp(name, 'i');
-    const userData = await this.userModel.find({ name: regex }).lean();
+  async fetchUserList(name?: string): Promise<User[]> {
+    let query = {};
+    if (name) {
+      const regex = new RegExp(name, 'i');
+      query = { name: regex };
+    }
+    const userData = await this.userModel.find(query).lean();
 
     if (!userData) {
       throw new Error('User data not found');
