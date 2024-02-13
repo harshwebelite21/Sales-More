@@ -106,7 +106,7 @@ export class OrderService {
     // Add conditions based on userId and amount range
     query = {
       ...query, // Merge with existing query object
-      ...(role === RoleEnum.user && userId && { userId }), // Include condition if role is user and userId is provided
+      ...(role === RoleEnum.user && { userId }), // Include condition if role is user and userId is provided
       ...(maxAmount &&
         minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }), // Include condition for amount range
     };
