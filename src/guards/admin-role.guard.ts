@@ -1,10 +1,10 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { RoleEnum } from 'src/modules/user/user.model';
-import { verifyJwtToken } from 'src/utils/jwt';
+import { Role } from 'modules/user/user.model';
+import { verifyJwtToken } from 'utils/jwt';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
     try {
@@ -16,12 +16,12 @@ export class AdminAuthGuard implements CanActivate {
         throw new Error('Access denied. Token not provided.');
       }
 
-      const { id, role } = verifyJwtToken(token);
+      const { userId, role } = verifyJwtToken(token);
 
-      if (!id || role !== RoleEnum.admin) {
+      if (!userId || role !== Role.Admin) {
         throw new Error('Unauthorized. Admin role required.');
       }
-      request.userId = id;
+      request.userId = userId;
       request.role = role;
 
       return true;

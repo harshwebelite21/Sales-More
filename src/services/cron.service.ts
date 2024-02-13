@@ -1,15 +1,15 @@
 import { Cron } from '@nestjs/schedule';
-
-import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { Cart } from 'src/modules/cart/cart.model';
 import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+
+import { Model } from 'mongoose';
+import { Cart } from 'modules/cart/cart.model';
 
 @Injectable()
 export class CronService {
   constructor(@InjectModel('Cart') private readonly cartModel: Model<Cart>) {}
   @Cron('*/20 * * * *')
-  async checkAndDeleteEmptyCart() {
+  async checkAndDeleteEmptyCart(): Promise<void> {
     try {
       const emptyCarts = await this.cartModel.aggregate([
         {

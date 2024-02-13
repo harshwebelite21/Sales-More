@@ -1,9 +1,15 @@
 import { sign, verify } from 'jsonwebtoken';
-import { appConfig } from 'src/config/appConfig';
-import { convertToObjectId } from './converter';
+import { appConfig } from 'config/appConfig';
+import {
+  TokenPayload,
+  VerifiedToken,
+} from 'modules/user/interfaces/user.interface';
 
 // Generate JWT token with the provided payload and options
-export const generateJwtToken = (payload, options) => {
+export const generateJwtToken = (
+  payload: TokenPayload,
+  options: { expiresIn: string },
+): string => {
   try {
     // Sign the JWT token using the configured secret key
     return sign(payload, appConfig.jwtKey, options);
@@ -15,11 +21,10 @@ export const generateJwtToken = (payload, options) => {
 };
 
 // Verify the provided JWT token
-export const verifyJwtToken = (cookieToken) => {
+export const verifyJwtToken = (cookieToken: string): VerifiedToken => {
   try {
     const { userId, role } = verify(cookieToken, appConfig.jwtKey) || {};
-    const id = convertToObjectId(userId);
-    return { id, role };
+    return { userId, role };
   } catch (err) {
     console.error('Error while verifying token:', err);
     throw new Error('Invalid token or unauthorized.');

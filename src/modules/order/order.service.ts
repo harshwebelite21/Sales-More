@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import { SortEnum } from 'src/enums';
-
-import { UserIdRole } from 'src/interfaces';
+import { launch } from 'puppeteer';
+import { SortEnum } from 'enums';
+import { compile } from 'handlebars';
 import { readFile } from 'fs-extra';
-import puppeteer from 'puppeteer';
-import hbs from 'handlebars';
 
+import { UserIdRole } from 'interfaces';
+import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
-import { OrderFilterType } from './interfaces/order.interface';
+import { BillingData, OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
-import { RoleEnum } from '../user/user.model';
+import { Role } from '../user/user.model';
 
 @Injectable()
 export class OrderService {
@@ -24,7 +24,7 @@ export class OrderService {
   ) {}
   // Create a Order
   async checkOut(userData: UserIdRole): Promise<void> {
-    const userId = userData.userId;
+    const userId = convertToObjectId(userData.userId);
     const cartProducts = await this.cartModel
       .findOne(
         {
@@ -77,7 +77,7 @@ export class OrderService {
     });
 
     // To Delete cart from the Cart collection After saving History in Order Table
-    await this.cartModel.deleteOne({ userId });
+    // await this.cartModel.deleteOne({ userId });
 
     // To Generate Bill
     this.billGenerator(userId);
@@ -88,26 +88,33 @@ export class OrderService {
     userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     const {
-      userName = 'A',
-      productName = 'A',
+      search,
       maxAmount,
       minAmount,
       pageNumber = 1,
       pageSize = 10,
       sortBy = 'createdAt',
-      sortOrder,
+      sortOrder = SortEnum.DESC,
     } = queryData;
-    const regex = new RegExp(userName, 'i');
-    const productRegex = new RegExp(productName, 'i');
-    const { role, userId } = userData;
-    const query = {
-      ...(role === RoleEnum.admin && userName && { 'user.name': regex }),
-      ...(role === RoleEnum.user && userId && { userId }),
-      ...(productName && {
-        'productsData.name': productRegex,
-      }),
+    const { role } = userData;
+    const userId = convertToObjectId(userData.userId);
+
+    let query = {}; // Define query as an empty object
+
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      query = {
+        ...(role === Role.Admin && { 'user.name': searchRegex }),
+        'productsData.name': searchRegex,
+      };
+    }
+
+    // Add conditions based on userId and amount range
+    query = {
+      ...query, // Merge with existing query object
+      ...(role === Role.User && { userId }), // Include condition if role is user and userId is provided
       ...(maxAmount &&
-        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
+        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }), // Include condition for amount range
     };
 
     const sortStage: PipelineStage = {
@@ -162,13 +169,13 @@ export class OrderService {
   }
 
   // Bill Generation
-  private async billGenerator(userId) {
-    const compile = async (data) => {
+  private async billGenerator(userId): Promise<void> {
+    const htmlCompile = async (data: BillingData): Promise<string> => {
       const html = await readFile(
         'src/modules/order/templates/index.hbs',
         'utf8',
       );
-      return hbs.compile(html)(data);
+      return compile(html)(data);
     };
 
     const data = await this.orderModel.aggregate([
@@ -202,6 +209,7 @@ export class OrderService {
           email: '$user.email',
           address: '$user.address',
           createdAt: 1,
+          mobile: '$user.mobile',
           amount: 1,
           products: {
             $map: {
@@ -255,10 +263,9 @@ export class OrderService {
         },
       },
     ]);
-    console.log('🚀 ~ OrderService ~ billGenerator ~ data:', data);
 
-    const content = await compile(data[0]);
-    const browser = await puppeteer.launch();
+    const content = await htmlCompile(data[0]);
+    const browser = await launch();
     const page = await browser.newPage();
     await page.setContent(content);
 

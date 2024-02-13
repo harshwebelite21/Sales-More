@@ -9,10 +9,9 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { SuccessMessageDTO } from 'src/interfaces';
-
-import { AdminAuthGuard } from 'src/guards/admin-role.guard';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { SuccessMessageDTO } from 'interfaces';
+import { AdminAuthGuard } from 'guards/admin-role.guard';
 import {
   AddProductDto,
   FilterProductDto,
