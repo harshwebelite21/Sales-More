@@ -1,3 +1,5 @@
+import { ApiTags } from '@nestjs/swagger';
+import { SuccessMessageDTO } from 'interfaces';
 import {
   Body,
   Controller,
@@ -7,9 +9,6 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { SuccessMessageDTO } from 'src/interfaces';
-
-import { ApiTags } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';

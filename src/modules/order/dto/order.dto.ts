@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
-import { SortEnum } from 'src/enums';
+import { SortEnum } from 'enums';
 
 export class OrderQueryInputDto {
   @ApiProperty({ required: false })

@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser'; // Import cookie-parser
-
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';

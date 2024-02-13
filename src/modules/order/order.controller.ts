@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { SuccessMessageDTO, UserIdRole } from 'src/interfaces';
-
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'guards/auth.guard';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
+
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { OrderService } from './order.service';

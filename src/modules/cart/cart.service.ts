@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { convertToObjectId } from 'src/utils/converter';
+import { convertToObjectId } from 'utils/converter';
 import { Cart } from './cart.model';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { CartProduct, FindCartInterface } from './interfaces/cart.interface';
@@ -116,7 +116,7 @@ export class CartService {
   }
 
   private async fetchProducts(productIds: string[]): Promise<Product[]> {
-    return await this.productModel.find({
+    return this.productModel.find({
       _id: { $in: productIds },
     });
   }
@@ -141,17 +141,18 @@ export class CartService {
   }
 
   private async findUserCart(userId: Types.ObjectId): Promise<Cart | null> {
-    return await this.cartModel.findOne({ userId });
+    return this.cartModel.findOne({ userId });
   }
 
   private async addToExistingCart(
     userId: Types.ObjectId,
     products: AddToCartDto['products'],
   ): Promise<void> {
-    const allProductIdAvailableInCart =
-      (await this.findUserCart(userId))?.products.map(({ productId }) =>
-        productId.toString(),
-      ) || [];
+    const cart = await this.findUserCart(userId);
+    const cartProducts = cart ? cart.products : [];
+    const allProductIdAvailableInCart = cartProducts.map(({ productId }) =>
+      productId.toString(),
+    );
 
     const promises = products.map(async (element) => {
       if (allProductIdAvailableInCart.includes(element.productId)) {
@@ -183,7 +184,7 @@ export class CartService {
     const mergedProductsMap: MergedProductsMap = {};
 
     products.forEach((product) => {
-      if (mergedProductsMap[product.productId] === undefined) {
+      if (!mergedProductsMap[product.productId]) {
         mergedProductsMap[product.productId] = product.quantity;
       } else {
         mergedProductsMap[product.productId] += product.quantity;

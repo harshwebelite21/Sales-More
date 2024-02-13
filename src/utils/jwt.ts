@@ -1,9 +1,9 @@
 import { sign, verify } from 'jsonwebtoken';
-import { appConfig } from 'src/config/appConfig';
+import { appConfig } from 'config/appConfig';
 import {
   TokenPayload,
   VerifiedToken,
-} from 'src/modules/user/interfaces/user.interface';
+} from 'modules/user/interfaces/user.interface';
 import { convertToObjectId } from './converter';
 
 // Generate JWT token with the provided payload and options

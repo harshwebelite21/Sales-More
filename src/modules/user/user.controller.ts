@@ -12,15 +12,15 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from 'guards/auth.guard';
 import {
   UserInterceptor,
   UserSignupInterceptor,
-} from 'src/interceptor/interceptor';
-import { AdminAuthGuard } from 'src/guards/admin-role.guard';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { UserIdRole } from 'src/interfaces';
+} from 'interceptor/interceptor';
+import { AdminAuthGuard } from 'guards/admin-role.guard';
+import { UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';

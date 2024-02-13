@@ -1,10 +1,10 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { RoleEnum } from 'src/modules/user/user.model';
-import { verifyJwtToken } from 'src/utils/jwt';
+import { RoleEnum } from 'modules/user/user.model';
+import { verifyJwtToken } from 'utils/jwt';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
     try {

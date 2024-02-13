@@ -1,4 +1,4 @@
-import { RoleEnum } from 'src/modules/user/user.model';
+import { RoleEnum } from 'modules/user/user.model';
 
 export interface SuccessMessageDTO {
   success: boolean;

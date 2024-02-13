@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
@@ -7,9 +8,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { SortEnum } from 'src/enums';
-
-import { ApiProperty } from '@nestjs/swagger';
+import { SortEnum } from 'enums';
 import { CategoryEnum } from '../products.model';
 
 export class AddProductDto {

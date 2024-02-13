@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import { SortEnum } from 'src/enums';
+import { SortEnum } from 'enums';
 
-import { UserIdRole } from 'src/interfaces';
+import { UserIdRole } from 'interfaces';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';

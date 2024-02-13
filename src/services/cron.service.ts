@@ -1,9 +1,9 @@
 import { Cron } from '@nestjs/schedule';
-
-import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { Cart } from 'src/modules/cart/cart.model';
 import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+
+import { Model } from 'mongoose';
+import { Cart } from 'modules/cart/cart.model';
 
 @Injectable()
 export class CronService {

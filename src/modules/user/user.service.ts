@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
-import { generateJwtToken } from 'src/utils/jwt';
+import { generateJwtToken } from 'utils/jwt';
 
 import { Model } from 'mongoose';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
