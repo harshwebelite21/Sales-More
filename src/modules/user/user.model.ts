@@ -39,6 +39,9 @@ export class User extends Document {
   @Prop({ type: Date, required: true })
   birthdate: Date;
 
+  @Prop({ type: String, required: true })
+  address: string;
+
   @Prop({ type: Number, required: true, default: 2 })
   role: RoleEnum;
 }

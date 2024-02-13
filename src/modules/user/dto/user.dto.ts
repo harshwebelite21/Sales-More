@@ -50,6 +50,11 @@ export class UserSignupDto {
   @IsNotEmpty()
   @Transform(({ value }) => new Date(value))
   birthdate: Date;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  address: string;
 }
 export class UserUpdateDto {
   @ApiProperty({ required: false })
@@ -74,4 +79,9 @@ export class UserUpdateDto {
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   birthdate?: Date;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  address?: string;
 }

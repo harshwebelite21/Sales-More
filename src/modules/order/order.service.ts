@@ -4,6 +4,10 @@ import { Model, PipelineStage } from 'mongoose';
 import { SortEnum } from 'src/enums';
 
 import { UserIdRole } from 'src/interfaces';
+import { readFile } from 'fs-extra';
+import puppeteer from 'puppeteer';
+import hbs from 'handlebars';
+
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
@@ -74,6 +78,9 @@ export class OrderService {
 
     // To Delete cart from the Cart collection After saving History in Order Table
     await this.cartModel.deleteOne({ userId });
+
+    // To Generate Bill
+    this.billGenerator(userId);
   }
 
   async filterOrder(
@@ -152,5 +159,116 @@ export class OrderService {
     ];
 
     return this.orderModel.aggregate(pipeline).exec();
+  }
+
+  // Bill Generation
+  private async billGenerator(userId) {
+    const compile = async (data) => {
+      const html = await readFile(
+        'src/modules/order/templates/index.hbs',
+        'utf8',
+      );
+      return hbs.compile(html)(data);
+    };
+
+    const data = await this.orderModel.aggregate([
+      {
+        $match: {
+          userId,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productData',
+        },
+      },
+      {
+        $project: {
+          username: '$user.name',
+          email: '$user.email',
+          address: '$user.address',
+          createdAt: 1,
+          amount: 1,
+          products: {
+            $map: {
+              input: '$products',
+              as: 'product',
+              in: {
+                productName: {
+                  $arrayElemAt: [
+                    {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$productData',
+                            as: 'pd',
+                            cond: {
+                              $eq: ['$$pd._id', '$$product.productId'],
+                            },
+                          },
+                        },
+                        as: 'pd',
+                        in: '$$pd.name',
+                      },
+                    },
+                    0,
+                  ],
+                },
+                quantity: '$$product.quantity',
+                price: {
+                  $arrayElemAt: [
+                    {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$productData',
+                            as: 'pd',
+                            cond: {
+                              $eq: ['$$pd._id', '$$product.productId'],
+                            },
+                          },
+                        },
+                        as: 'pd',
+                        in: '$$pd.price',
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+    console.log('🚀 ~ OrderService ~ billGenerator ~ data:', data);
+
+    const content = await compile(data[0]);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(content);
+
+    await page.pdf({
+      path: 'src/modules/order/Bills/output.pdf',
+      format: 'A4',
+      printBackground: true,
+    });
+
+    console.log('Bill generated successfully!');
+    await browser.close();
   }
 }
