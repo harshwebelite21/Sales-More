@@ -1,7 +1,9 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { Request } from 'express';
+import { Types } from 'mongoose';
+import { RoleEnum } from './user.model';
 
-type RequestWithUser = Request & { userId: string; role: number };
+type RequestWithUser = Request & { userId: Types.ObjectId; role: RoleEnum };
 
 export const GetUserId = createParamDecorator(
   (data, executionContext: ExecutionContext) => {

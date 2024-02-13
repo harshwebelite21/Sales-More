@@ -4,6 +4,7 @@ import { Model, PipelineStage } from 'mongoose';
 import { SortEnum } from 'enums';
 
 import { UserIdRole } from 'interfaces';
+import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
@@ -81,8 +82,7 @@ export class OrderService {
     userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     const {
-      userName,
-      productName,
+      search,
       maxAmount,
       minAmount,
       pageNumber = 1,
@@ -90,23 +90,16 @@ export class OrderService {
       sortBy = 'createdAt',
       sortOrder = SortEnum.DESC,
     } = queryData;
-    const { role, userId } = userData;
+    const { role } = userData;
+    const userId = convertToObjectId(userData.userId);
 
     let query = {}; // Define query as an empty object
 
-    // Add conditions based on userName
-    if (userName) {
-      const regex = new RegExp(userName, 'i');
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
       query = {
-        ...(role === RoleEnum.admin && { 'user.name': regex }), // Include condition if role is admin
-      };
-    }
-
-    if (productName) {
-      const productRegex = new RegExp(productName, 'i');
-      query = {
-        ...query, // Merge with existing query object
-        'productsData.name': productRegex, // Add condition for product name
+        ...(role === RoleEnum.admin && { 'user.name': searchRegex }),
+        'productsData.name': searchRegex,
       };
     }
 
