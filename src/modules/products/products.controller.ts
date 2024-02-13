@@ -3,27 +3,32 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { SuccessMessageDTO } from 'src/interfaces';
-
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { SuccessMessageDTO } from 'interfaces';
+import { AdminAuthGuard } from 'guards/admin-role.guard';
 import {
   AddProductDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import { GetProductId } from './productId.decorator';
 import { Product } from './products.model';
 import { ProductService } from './products.service';
 
 @Controller('product')
+@ApiTags('Products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   // Add a new product
   @Post('/')
+  @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async addProducts(@Body() body: AddProductDto): Promise<SuccessMessageDTO> {
     try {
       await this.productService.addProducts(body);
@@ -36,8 +41,10 @@ export class ProductController {
 
   // Update product details
   @Put('/:productId')
+  @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async updateProduct(
-    @GetProductId() productId: string,
+    @Param('productId') productId: string,
     @Body() body: UpdateProductDto,
   ): Promise<SuccessMessageDTO> {
     try {
@@ -51,8 +58,10 @@ export class ProductController {
 
   // Delete a product
   @Delete('/:productId')
+  @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
   async deleteProduct(
-    @GetProductId() productId: string,
+    @Param('productId') productId: string,
   ): Promise<SuccessMessageDTO> {
     try {
       await this.productService.deleteProduct(productId);

@@ -1,22 +1,26 @@
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { SuccessMessageDTO } from 'src/interfaces';
+import { AuthGuard } from 'guards/auth.guard';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
-import { Order } from './order.model';
 import { OrderService } from './order.service';
 import { GetUserId } from '../user/userId.decorator';
 
-@Controller('order')
+@Controller('/')
+@ApiTags('Order')
 @UseGuards(AuthGuard)
+@ApiSecurity('JWT-auth')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   // Checkout
-  @Post('/')
-  async checkOut(@GetUserId() userId: string): Promise<SuccessMessageDTO> {
+  @Post('order/')
+  async checkOut(
+    @GetUserId() userData: UserIdRole,
+  ): Promise<SuccessMessageDTO> {
     try {
-      await this.orderService.checkOut(userId);
+      await this.orderService.checkOut(userData);
       return { success: true, message: 'Order Placed successfully' };
     } catch (error) {
       console.error('Error during CheckOut:', error);
@@ -25,22 +29,15 @@ export class OrderController {
   }
   // View Order History using user Specific userId
 
-  @Get('/')
-  async getOrderHistory(@GetUserId() userId: string): Promise<Order[]> {
-    try {
-      return this.orderService.getOrderHistory(userId);
-    } catch (error) {
-      console.error('Error during Getting Order History:', error);
-      throw error;
-    }
-  }
-
-  @Get('/filter-order')
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Get('order/order-history')
   async filterOrders(
     @Query() query: OrderQueryInputDto,
+    @GetUserId() userData: UserIdRole,
   ): Promise<OrderFilterType[]> {
     try {
-      return this.orderService.filterOrder(query);
+      return this.orderService.filterOrder(query, userData);
     } catch (error) {
       console.error('Error during Getting Order Filter:', error);
       throw error;

@@ -1,3 +1,5 @@
+import { ApiTags } from '@nestjs/swagger';
+import { SuccessMessageDTO } from 'interfaces';
 import {
   Body,
   Controller,
@@ -7,13 +9,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { SuccessMessageDTO } from 'src/interfaces';
-
 import { CartService } from './cart.service';
 import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
 import { FindCartInterface } from './interfaces/cart.interface';
 
 @Controller('cart')
+@ApiTags('Cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 

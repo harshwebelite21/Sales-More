@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
+import { convertToObjectId } from 'utils/converter';
 import { Cart } from './cart.model';
-import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
-import { FindCartInterface } from './interfaces/cart.interface';
+import { AddToCartDto, Products, RemoveSpecificItemDto } from './dto/cart.dto';
+import { CartProduct, FindCartInterface } from './interfaces/cart.interface';
 import { Product } from '../products/products.model';
+
+// Define the MergedProductsMap type
+type MergedProductsMap = { [productId: string]: number };
 
 @Injectable()
 export class CartService {
@@ -15,85 +19,36 @@ export class CartService {
     private readonly productModel: Model<Product>,
   ) {}
 
-  // Create a cart
   async addToCart(body: AddToCartDto): Promise<void> {
-    const { userId, products } = body;
+    const { products } = body;
+    const userId = convertToObjectId(body.userId);
 
-    const productIds = products.map((product) => product.productId);
+    const productIds = this.extractProductIds(products);
+    const productsWithIds = await this.fetchProducts(productIds);
+    this.checkProductAvailability(products, productsWithIds);
 
-    // Fetch all products at once
-    const productsWithIds = await this.productModel.find({
-      _id: { $in: productIds },
-    });
-
-    // Create a map of available product IDs to their quantities
-    const availableProductMap: Array<{ productId: string; qty: number }> = [];
-    productsWithIds.forEach((product) => {
-      availableProductMap.push({
-        productId: product._id.toString(),
-        qty: product.availableQuantity,
-      });
-    });
-
-    // Check if any product is not available
-    const unavailableProduct = products.find((product) => {
-      const getProduct = availableProductMap.find(
-        (availableProduct) => availableProduct.productId === product.productId,
-      );
-      return !getProduct?.qty;
-    });
-
-    if (unavailableProduct) {
-      throw new Error(
-        `Product with ID ${unavailableProduct.productId} is Not Available`,
-      );
-    }
-
-    // Check users cart available or not
-    const availableUser = await this.cartModel.findOne({ userId });
-    // const availableUser = await this.cartModel.exists({ userId });   returns only id
-
-    // If User is available then Added Products to same cart other wise create new cart
+    const availableUser = await this.findUserCart(userId);
     if (availableUser) {
-      // To save the all userId which is saved in user's specific cart
-      const allProductIdAvailableInCart = availableUser.products.map(
-        ({ productId }) => {
-          return productId.toString();
-        },
-      );
-
-      // Create promises for all changes and last they all are resolved
-      const promises = products.map(async (element) => {
-        if (allProductIdAvailableInCart.includes(element.productId)) {
-          await this.cartModel.findOneAndUpdate(
-            { userId, 'products.productId': element.productId },
-            { $inc: { 'products.$.quantity': element.quantity } },
-          );
-        } else {
-          await this.cartModel.updateOne({ userId }, { $push: { products } });
-        }
-      });
-
-      // Resolve all promises at one time
-      await Promise.all(promises);
+      await this.addToExistingCart(userId, products);
     } else {
-      await this.cartModel.create({ userId, products });
+      const mergedProducts = this.mergeAndConvertProducts(products);
+      await this.createCart(userId, mergedProducts);
     }
   }
 
   //  Delete data from cart
-  async removeFromCart(userId: string): Promise<void> {
-    await this.cartModel.findOneAndDelete({ userId });
+  async removeFromCart(id: string): Promise<void> {
+    await this.cartModel.findOneAndDelete({ userId: convertToObjectId(id) });
   }
 
   // To remove the specific item from cart
 
   async removeSpecificItem(body: RemoveSpecificItemDto): Promise<void> {
-    const { userId, productId } = body;
+    const { productId } = body;
     const updatedCart = await this.cartModel
       .updateOne(
         {
-          userId,
+          userId: convertToObjectId(body.userId),
           'products.productId': productId,
         },
         { $pull: { products: { productId } } },
@@ -102,15 +57,14 @@ export class CartService {
     if (!updatedCart || updatedCart.modifiedCount < 1) {
       throw Error('Cart or item not found');
     }
-    this.checkAndDeleteEmptyCart();
   }
 
   // View the user data from cart
-  async findCart(userId: string): Promise<FindCartInterface[]> {
+  async findCart(id: string): Promise<FindCartInterface[]> {
     const cartData = await this.cartModel.aggregate([
       {
         $match: {
-          userId,
+          userId: convertToObjectId(id),
         },
       },
       {
@@ -138,11 +92,11 @@ export class CartService {
   }
 
   async reduceQuantity(body: RemoveSpecificItemDto): Promise<void> {
-    const { userId, productId } = body;
+    const { productId } = body;
     const decrementedData = await this.cartModel
       .updateOne(
         {
-          userId,
+          userId: convertToObjectId(body.userId),
           'products.productId': productId,
         },
         {
@@ -155,33 +109,107 @@ export class CartService {
     }
   }
 
-  // Automatically Delete cart if it is an empty cart
-  async checkAndDeleteEmptyCart(): Promise<void> {
-    // Find carts with no products
-    const emptyCarts = await this.cartModel.aggregate([
-      {
-        $match: {
-          products: { $exists: true, $size: 0 }, // Match carts with no products
-        },
-      },
-      {
-        $project: {
-          _id: 1, // Project only the _id field for optimization
-        },
-      },
-    ]);
+  // Other Private Functions
 
-    // Extract cart IDs to be deleted
-    const cartIdsToDelete = emptyCarts.map(({ _id }) => _id.toString());
+  private extractProductIds(products: Products[]): string[] {
+    return products.map((product) => product.productId);
+  }
 
-    // Delete carts with no products
-    if (cartIdsToDelete.length > 0) {
-      const deleteResult = await this.cartModel.deleteMany({
-        _id: { $in: cartIdsToDelete },
-      });
-      console.log(`${deleteResult.deletedCount} cart(s) deleted`);
-    } else {
-      console.log('No empty carts found');
-    }
+  private async fetchProducts(productIds: string[]): Promise<Product[]> {
+    return this.productModel.find({
+      _id: { $in: productIds },
+    });
+  }
+
+  private checkProductAvailability(
+    products: AddToCartDto['products'],
+    productsWithIds: Product[],
+  ): void {
+    products.forEach((product) => {
+      const availableProduct = productsWithIds.find(
+        (p) => p._id.toString() === product.productId,
+      );
+      if (
+        !availableProduct ||
+        availableProduct.availableQuantity < product.quantity
+      ) {
+        throw new Error(
+          `Product with ID ${product.productId} is Not Available`,
+        );
+      }
+    });
+  }
+
+  private async findUserCart(userId: Types.ObjectId): Promise<Cart | null> {
+    return this.cartModel.findOne({ userId });
+  }
+
+  private async addToExistingCart(
+    userId: Types.ObjectId,
+    products: AddToCartDto['products'],
+  ): Promise<void> {
+    const cart = await this.findUserCart(userId);
+    const cartProducts = cart ? cart.products : [];
+    const allProductIdAvailableInCart = cartProducts.map(({ productId }) =>
+      productId.toString(),
+    );
+
+    const promises = products.map(async (element) => {
+      if (allProductIdAvailableInCart.includes(element.productId)) {
+        await this.cartModel.findOneAndUpdate(
+          { userId, 'products.productId': element.productId },
+          { $inc: { 'products.$.quantity': element.quantity } },
+        );
+      } else {
+        await this.cartModel.updateOne(
+          { userId },
+          { $push: { products: element } },
+        );
+      }
+    });
+
+    await Promise.all(promises);
+  }
+
+  private mergeAndConvertProducts(
+    products: AddToCartDto['products'],
+  ): CartProduct[] {
+    const mergedProductsMap = this.mergeProductsByProductId(products);
+    return this.convertToCartProductsArray(mergedProductsMap);
+  }
+
+  private mergeProductsByProductId(
+    products: AddToCartDto['products'],
+  ): MergedProductsMap {
+    const mergedProductsMap: MergedProductsMap = {};
+
+    products.forEach((product) => {
+      if (!mergedProductsMap[product.productId]) {
+        mergedProductsMap[product.productId] = product.quantity;
+      } else {
+        mergedProductsMap[product.productId] += product.quantity;
+      }
+    });
+
+    return mergedProductsMap;
+  }
+
+  private convertToCartProductsArray(
+    mergedProductsMap: MergedProductsMap,
+  ): CartProduct[] {
+    return Object.entries(mergedProductsMap).map(([productId, quantity]) => ({
+      productId,
+      quantity,
+    }));
+  }
+
+  private async createCart(
+    userId: Types.ObjectId,
+    products: CartProduct[],
+  ): Promise<void> {
+    await this.cartModel.create({
+      userId,
+      products,
+    });
   }
 }

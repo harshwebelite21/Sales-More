@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Model } from 'mongoose';
-import { generateJwtToken } from 'src/utils/jwt';
+import { generateJwtToken } from 'utils/jwt';
 
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
@@ -32,7 +32,7 @@ export class UserService {
     }
     // Generate JWT token
     const token = generateJwtToken(
-      { userId: userData._id },
+      { userId: userData._id, role: userData.role },
       { expiresIn: '1d' },
     );
 
@@ -53,7 +53,7 @@ export class UserService {
   }
 
   // Delete user by userId
-  async deleteData(userId): Promise<string> {
+  async deleteData(userId: string): Promise<string> {
     await this.userModel.findByIdAndDelete(userId);
     // delete all carts that contain the deleted user
     await this.cartModel.findOneAndDelete({ userId });
@@ -69,6 +69,21 @@ export class UserService {
   // View user data by userId
   async viewUser(userId: string): Promise<User> {
     const userData = await this.userModel.findById(userId).lean();
+    if (!userData) {
+      throw new Error('User data not found');
+    }
+    return userData;
+  }
+
+  // View user data by userId
+  async fetchUserList(name?: string): Promise<User[]> {
+    let query = {};
+    if (name) {
+      const regex = new RegExp(name, 'i');
+      query = { name: regex };
+    }
+    const userData = await this.userModel.find(query).lean();
+
     if (!userData) {
       throw new Error('User data not found');
     }

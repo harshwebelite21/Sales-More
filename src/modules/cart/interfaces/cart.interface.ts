@@ -1,7 +1,6 @@
-interface CartProduct {
+export interface CartProduct {
   productId: string;
   quantity: number;
-  _id: string;
 }
 
 export interface FindCartInterface {

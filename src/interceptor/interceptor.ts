@@ -13,17 +13,31 @@ export class UserInterceptor implements NestInterceptor {
 
     // Update the request body
     if (request.body) {
-      request.body = {
-        name: request.body.name,
-        password: request.body.password,
-        age: request.body.age,
-        birthdate: request.body.birthdate,
-      };
+      const { name, password, age, birthdate } = request.body;
+      request.body = { name, password, age, birthdate };
     }
 
     return next.handle().pipe(
       map(() => {
         return `${request.body.name} User Data Updated Successfully`;
+      }),
+    );
+  }
+}
+
+export class UserSignupInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest();
+
+    // Update the request body
+    if (request.body) {
+      const { name, email, password, age, birthdate } = request.body;
+      request.body = { name, email, password, age, birthdate };
+    }
+
+    return next.handle().pipe(
+      map(() => {
+        return `${request.body.name} User Data Added Successfully`;
       }),
     );
   }

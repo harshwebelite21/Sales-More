@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage, Types } from 'mongoose';
-import { SortEnum } from 'src/enums';
+import { Model, PipelineStage } from 'mongoose';
+import { SortEnum } from 'enums';
 
+import { UserIdRole } from 'interfaces';
+import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
+import { Role } from '../user/user.model';
 
 @Injectable()
 export class OrderService {
@@ -17,8 +20,8 @@ export class OrderService {
     @InjectModel('Product') private readonly productModel: Model<Product>,
   ) {}
   // Create a Order
-  async checkOut(userId): Promise<void> {
-    // Find the Cart products Of the specific user
+  async checkOut(userData: UserIdRole): Promise<void> {
+    const userId = userData.userId;
     const cartProducts = await this.cartModel
       .findOne(
         {
@@ -74,33 +77,40 @@ export class OrderService {
     await this.cartModel.deleteOne({ userId });
   }
 
-  // View the user data from Order
-  async getOrderHistory(userId): Promise<Order[]> {
-    return this.orderModel
-      .find({ userId })
-      .populate('userId')
-      .populate('products.productId')
-      .lean();
-  }
-
-  async filterOrder(queryData: OrderQueryInputDto): Promise<OrderFilterType[]> {
+  async filterOrder(
+    queryData: OrderQueryInputDto,
+    userData: UserIdRole,
+  ): Promise<OrderFilterType[]> {
     const {
-      userId,
-      productId,
+      search,
       maxAmount,
       minAmount,
       pageNumber = 1,
       pageSize = 10,
       sortBy = 'createdAt',
-      sortOrder,
+      sortOrder = SortEnum.DESC,
     } = queryData;
+    const { role } = userData;
+    const userId = convertToObjectId(userData.userId);
 
-    const query = {
-      ...(userId && { userId: new Types.ObjectId(userId) }),
-      ...(productId && { 'products.productId': new Types.ObjectId(productId) }),
+    let query = {}; // Define query as an empty object
+
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      query = {
+        ...(role === Role.Admin && { 'user.name': searchRegex }),
+        'productsData.name': searchRegex,
+      };
+    }
+
+    // Add conditions based on userId and amount range
+    query = {
+      ...query, // Merge with existing query object
+      ...(role === Role.User && { userId }), // Include condition if role is user and userId is provided
       ...(maxAmount &&
-        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }),
+        minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }), // Include condition for amount range
     };
+
     const sortStage: PipelineStage = {
       $sort: {
         [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
@@ -109,21 +119,35 @@ export class OrderService {
 
     const pipeline: PipelineStage[] = [
       {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productsData',
+        },
+      },
+      {
         $match: query,
       },
       {
-        $skip: (pageNumber - 1) * pageSize, // Skip documents based on the page number
+        $skip: (pageNumber - 1) * pageSize,
       },
       {
-        $limit: pageSize, // Limit the number of documents per page
+        $limit: pageSize,
       },
       {
         $group: {
           _id: null,
           Orders: { $push: '$$ROOT' },
-          totalAmount: {
-            $sum: '$amount',
-          },
+          totalAmount: { $sum: '$amount' },
         },
       },
       {

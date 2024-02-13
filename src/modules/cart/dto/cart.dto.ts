@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -9,10 +10,11 @@ import {
 
 export class AddToCartDto {
   @IsNotEmpty()
-  @IsString()
+  @ApiProperty()
   userId: string;
 
   @IsNotEmpty()
+  @ApiProperty()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Products)
@@ -21,18 +23,21 @@ export class AddToCartDto {
 
 export class Products {
   @IsNotEmpty()
+  @ApiProperty()
   @IsString()
   productId: string;
   @IsNotEmpty()
+  @ApiProperty()
   @IsInt()
   quantity: number;
 }
 
 export class RemoveSpecificItemDto {
+  @ApiProperty()
   @IsNotEmpty()
-  @IsString()
   userId: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   productId: string;

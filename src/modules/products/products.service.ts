@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
-import { SortEnum } from 'src/enums';
+import { SortEnum } from 'enums';
 
 import {
   AddProductDto,
@@ -41,7 +41,7 @@ export class ProductService {
   }
 
   // Filter Product
-  async filterProduct(queryData: FilterProductDto) {
+  async filterProduct(queryData: FilterProductDto): Promise<Product[]> {
     const {
       name,
       category,
@@ -54,20 +54,29 @@ export class ProductService {
       sortBy = 'createdAt', // New parameter for sorting
       sortOrder = SortEnum.DESC, // Default to ascending order
     } = queryData;
-    const regex = new RegExp(name, 'i');
 
-    const sortStage: PipelineStage = {
-      $sort: {
-        [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
-      },
-    };
-    const query = {
-      ...(name && { name: { $regex: regex } }),
+    let query = {}; // Define query as an empty object
+
+    // Add conditions based on userName
+    if (name) {
+      const regex = new RegExp(name, 'i');
+      query = {
+        ...query,
+        'user.name': regex, // Include condition if role is admin
+      };
+    }
+    query = {
+      ...query,
       ...(category && { category }),
       ...(attributeName && { 'attributes.name': attributeName }),
       ...(attributeValue && { 'attributes.value': attributeValue }),
       ...(minPrice &&
         maxPrice && { price: { $gte: minPrice, $lte: maxPrice } }),
+    };
+    const sortStage: PipelineStage = {
+      $sort: {
+        [sortBy]: sortOrder === SortEnum.DESC ? 1 : -1,
+      },
     };
 
     const pipeline: PipelineStage[] = [

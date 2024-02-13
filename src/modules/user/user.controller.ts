@@ -5,27 +5,34 @@ import {
   Get,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { UserInterceptor } from 'src/interceptor/interceptor';
-
-import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { AuthGuard } from 'guards/auth.guard';
+import {
+  UserInterceptor,
+  UserSignupInterceptor,
+} from 'interceptor/interceptor';
+import { AdminAuthGuard } from 'guards/admin-role.guard';
+import { UserIdRole } from 'interfaces';
 import { User } from './user.model';
-import { UserService } from './user.service';
 import { GetUserId } from './userId.decorator';
+import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
+import { UserService } from './user.service';
 
-@Controller('user')
+@Controller('/')
+@ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // Login route
-  @Post('/login')
+  @Post('user/login')
   @UsePipes(ValidationPipe)
   async login(@Body() body: UserLoginDto, @Res() res: Response): Promise<void> {
     try {
@@ -36,7 +43,7 @@ export class UserController {
       res.cookie('jwtToken', token, { httpOnly: true });
 
       // Send a success response
-      res.send('Login Successful');
+      res.send(`Token :- ${token}       Login Successful`);
     } catch (error) {
       console.error('Error during login:', error);
       throw error;
@@ -44,8 +51,9 @@ export class UserController {
   }
 
   // Signup route
-  @Post('/signup')
+  @Post('user/signup')
   @UsePipes(ValidationPipe)
+  @UseInterceptors(UserSignupInterceptor)
   async signup(@Body() body: UserSignupDto): Promise<string> {
     try {
       return this.userService.signUp(body);
@@ -56,11 +64,12 @@ export class UserController {
   }
 
   // Update User route
-  @Put('/')
+  @Put('user/')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   @UseInterceptors(UserInterceptor)
   async updateUser(
-    @GetUserId() userId: string,
+    @GetUserId() { userId }: UserIdRole,
     @Body() body: UserUpdateDto,
   ): Promise<string> {
     try {
@@ -72,9 +81,10 @@ export class UserController {
   }
 
   // Delete User route
-  @Delete('/')
+  @Delete('user/')
   @UseGuards(AuthGuard)
-  async deleteData(@GetUserId() userId: string): Promise<string> {
+  @ApiSecurity('JWT-auth')
+  async deleteData(@GetUserId() { userId }: UserIdRole): Promise<string> {
     try {
       return this.userService.deleteData(userId);
     } catch (error) {
@@ -84,8 +94,9 @@ export class UserController {
   }
 
   // Logout route
-  @Get('/logout')
+  @Get('user/logout')
   @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   async logout(@Res() res: Response): Promise<void> {
     try {
       this.userService.logout(res);
@@ -97,11 +108,25 @@ export class UserController {
   }
 
   // View Particular user route
-  @Get('/')
+  @Get('user/')
   @UseGuards(AuthGuard)
-  async viewUser(@GetUserId() userId: string): Promise<User> {
+  @ApiSecurity('JWT-auth')
+  async viewUser(@GetUserId() { userId }: UserIdRole): Promise<User> {
     try {
       return this.userService.viewUser(userId);
+    } catch (error) {
+      console.error('Error during view user:', error);
+      throw error;
+    }
+  }
+
+  // View Particular admin user route
+  @Get('/admin/users')
+  @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
+  async fetchUserList(@Query('name') name: string): Promise<User[]> {
+    try {
+      return this.userService.fetchUserList(name);
     } catch (error) {
       console.error('Error during view user:', error);
       throw error;
