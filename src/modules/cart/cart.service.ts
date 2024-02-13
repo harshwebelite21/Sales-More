@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 
 import { convertToObjectId } from 'utils/converter';
 import { Cart } from './cart.model';
-import { AddToCartDto, RemoveSpecificItemDto } from './dto/cart.dto';
+import { AddToCartDto, Products, RemoveSpecificItemDto } from './dto/cart.dto';
 import { CartProduct, FindCartInterface } from './interfaces/cart.interface';
 import { Product } from '../products/products.model';
 
@@ -111,7 +111,7 @@ export class CartService {
 
   // Other Private Functions
 
-  private extractProductIds(products: AddToCartDto['products']): string[] {
+  private extractProductIds(products: Products[]): string[] {
     return products.map((product) => product.productId);
   }
 

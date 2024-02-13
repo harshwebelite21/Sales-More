@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { RoleEnum } from 'modules/user/user.model';
+import { Role } from 'modules/user/user.model';
 import { verifyJwtToken } from 'utils/jwt';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AdminAuthGuard implements CanActivate {
 
       const { userId, role } = verifyJwtToken(token);
 
-      if (!userId || role !== RoleEnum.admin) {
+      if (!userId || role !== Role.Admin) {
         throw new Error('Unauthorized. Admin role required.');
       }
       request.userId = userId;

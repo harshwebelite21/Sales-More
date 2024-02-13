@@ -1,12 +1,12 @@
 import { Types } from 'mongoose';
-import { RoleEnum } from '../user.model';
+import { Role } from '../user.model';
 
 export interface TokenPayload {
   userId: Types.ObjectId;
-  role: RoleEnum;
+  role: Role;
 }
 
 export interface VerifiedToken {
   userId: Types.ObjectId;
-  role: RoleEnum;
+  role: Role;
 }

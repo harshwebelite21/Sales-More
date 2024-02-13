@@ -10,7 +10,7 @@ import { OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
-import { RoleEnum } from '../user/user.model';
+import { Role } from '../user/user.model';
 
 @Injectable()
 export class OrderService {
@@ -98,7 +98,7 @@ export class OrderService {
     if (search) {
       const searchRegex = new RegExp(search, 'i');
       query = {
-        ...(role === RoleEnum.admin && { 'user.name': searchRegex }),
+        ...(role === Role.Admin && { 'user.name': searchRegex }),
         'productsData.name': searchRegex,
       };
     }
@@ -106,7 +106,7 @@ export class OrderService {
     // Add conditions based on userId and amount range
     query = {
       ...query, // Merge with existing query object
-      ...(role === RoleEnum.user && { userId }), // Include condition if role is user and userId is provided
+      ...(role === Role.User && { userId }), // Include condition if role is user and userId is provided
       ...(maxAmount &&
         minAmount && { amount: { $gt: minAmount, $lte: maxAmount } }), // Include condition for amount range
     };

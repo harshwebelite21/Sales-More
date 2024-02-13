@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
+import { Model } from 'mongoose';
 import { generateJwtToken } from 'utils/jwt';
 
-import { Model } from 'mongoose';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { Cart } from '../cart/cart.model';

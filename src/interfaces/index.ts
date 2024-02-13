@@ -1,4 +1,4 @@
-import { RoleEnum } from 'modules/user/user.model';
+import { Role } from 'modules/user/user.model';
 
 export interface SuccessMessageDTO {
   success: boolean;
@@ -6,5 +6,5 @@ export interface SuccessMessageDTO {
 }
 export interface UserIdRole {
   userId: string;
-  role: RoleEnum;
+  role: Role;
 }
