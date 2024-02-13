@@ -9,6 +9,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsOptional,
+  Matches,
 } from 'class-validator';
 
 export class UserLoginDto {
@@ -55,6 +56,10 @@ export class UserSignupDto {
   @IsString()
   @IsNotEmpty()
   address: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @Matches(/^[0-9]{10}$/, { message: 'Invalid mobile number' })
+  mobile: string;
 }
 export class UserUpdateDto {
   @ApiProperty({ required: false })
@@ -66,6 +71,11 @@ export class UserUpdateDto {
   @IsString()
   @IsOptional()
   password?: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @Matches(/^[0-9]{10}$/, { message: 'Invalid mobile number' })
+  mobile?: string;
 
   @IsInt()
   @ApiProperty({ required: false })

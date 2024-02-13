@@ -13,8 +13,8 @@ export class UserInterceptor implements NestInterceptor {
 
     // Update the request body
     if (request.body) {
-      const { name, password, age, birthdate, address } = request.body;
-      request.body = { name, password, age, birthdate, address };
+      const { name, password, age, birthdate, address, mobile } = request.body;
+      request.body = { name, password, age, birthdate, address, mobile };
     }
 
     return next.handle().pipe(
@@ -31,8 +31,9 @@ export class UserSignupInterceptor implements NestInterceptor {
 
     // Update the request body
     if (request.body) {
-      const { name, email, password, age, birthdate, address } = request.body;
-      request.body = { name, email, password, age, birthdate, address };
+      const { name, email, password, age, birthdate, address, mobile } =
+        request.body;
+      request.body = { name, email, password, age, birthdate, address, mobile };
     }
 
     return next.handle().pipe(

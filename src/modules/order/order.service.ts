@@ -77,7 +77,7 @@ export class OrderService {
     });
 
     // To Delete cart from the Cart collection After saving History in Order Table
-    // await this.cartModel.deleteOne({ userId });
+    await this.cartModel.deleteOne({ userId });
 
     // To Generate Bill
     this.billGenerator(userId);
