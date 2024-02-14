@@ -38,7 +38,6 @@ export class OrderController {
   }
   // View Order History using user Specific userId
 
-  @ApiSecurity('JWT-auth')
   @Get('order/order-history')
   async filterOrders(
     @Query() query: OrderQueryInputDto,
@@ -52,7 +51,6 @@ export class OrderController {
     }
   }
 
-  @ApiSecurity('JWT-auth')
   @Get('/download-receipt/:orderId')
   async downloadBill(
     @Param('orderId') orderId: string,
