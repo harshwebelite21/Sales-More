@@ -59,11 +59,8 @@ export class OrderController {
     @Res() res: Response,
   ): Promise<void> {
     try {
-      const paths = join(
-        '/home/web-h-020/Documents/e-commerce-be/src/modules/order/bills',
-        `${orderId}.pdf`,
-      );
-      console.log('🚀 ~ OrderController ~ paths:', paths);
+      const directoryPath = 'src/modules/order/bills';
+      const paths = join(directoryPath, `${orderId}.pdf`);
       res.download(paths);
     } catch (error) {
       console.error('Error during Downloading Bill:', error);
