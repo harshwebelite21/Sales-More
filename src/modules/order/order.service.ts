@@ -6,7 +6,7 @@ import { SortEnum } from 'enums';
 import { compile } from 'handlebars';
 import { readFile } from 'fs-extra';
 
-import { UserIdRole } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { BillingData, OrderFilterType } from './interfaces/order.interface';
@@ -80,7 +80,7 @@ export class OrderService {
     await this.cartModel.deleteOne({ userId });
 
     // To Generate Bill
-    this.billGenerator(userId);
+    await this.billGenerator(userId);
   }
 
   async filterOrder(
@@ -264,18 +264,40 @@ export class OrderService {
       },
     ]);
 
+    // Process The Payment Before Bill Generation
+    await this.processPayment(data[0].amount);
+
+    // Start Creating Bill
     const content = await htmlCompile(data[0]);
     const browser = await launch();
     const page = await browser.newPage();
     await page.setContent(content);
-
+    // Save Pdf To Location
     await page.pdf({
-      path: 'src/modules/order/Bills/output.pdf',
+      path: `src/modules/order/bills/${data[0]._id}.pdf`,
       format: 'A4',
       printBackground: true,
     });
 
     console.log('Bill generated successfully!');
     await browser.close();
+    // Bill Creating Off
+  }
+
+  private async processPayment(amount): Promise<SuccessMessageDTO> {
+    const isSuccess = Math.random() < 0.8; // 80% chance of success
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (isSuccess) {
+          resolve({
+            success: true,
+            message: `${amount} Paid successfully.`,
+          });
+        } else {
+          reject(new Error('Payment failed. Please try again.'));
+        }
+      }, 1000);
+    });
   }
 }

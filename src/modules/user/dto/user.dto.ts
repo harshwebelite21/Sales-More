@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsString,
@@ -61,19 +61,14 @@ export class UserSignupDto {
   @Matches(/^[0-9]{10}$/, { message: 'Invalid mobile number' })
   mobile: string;
 }
-export class UserUpdateDto {
+export class UserUpdateDto extends PartialType(UserLoginDto) {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   name?: string;
 
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  password?: string;
-
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @Matches(/^[0-9]{10}$/, { message: 'Invalid mobile number' })
   mobile?: string;
 

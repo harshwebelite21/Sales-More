@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
@@ -45,38 +45,7 @@ export class AddProductDto {
   }>;
 }
 
-export class UpdateProductDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  name?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  price?: number;
-
-  @IsInt()
-  @ApiProperty({ required: false })
-  @IsOptional()
-  availableQuantity?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsEnum(CategoryEnum)
-  category: CategoryEnum;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  attributes: Array<{
-    name: string;
-    value: string;
-  }>;
-}
+export class UpdateProductDto extends PartialType(AddProductDto) {}
 
 export class FilterProductDto {
   @ApiProperty({ required: false })
