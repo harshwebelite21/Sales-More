@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
+import { launch } from 'puppeteer';
 import { SortEnum } from 'enums';
+import { compile } from 'handlebars';
+import { readFile } from 'fs-extra';
 
-import { UserIdRole } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
-import { OrderFilterType } from './interfaces/order.interface';
+import { BillingData, OrderFilterType } from './interfaces/order.interface';
 import { Order } from './order.model';
 import { Product } from '../products/products.model';
 import { Cart } from '../cart/cart.model';
@@ -21,7 +24,7 @@ export class OrderService {
   ) {}
   // Create a Order
   async checkOut(userData: UserIdRole): Promise<void> {
-    const userId = userData.userId;
+    const userId = convertToObjectId(userData.userId);
     const cartProducts = await this.cartModel
       .findOne(
         {
@@ -75,6 +78,9 @@ export class OrderService {
 
     // To Delete cart from the Cart collection After saving History in Order Table
     await this.cartModel.deleteOne({ userId });
+
+    // To Generate Bill
+    await this.billGenerator(userId);
   }
 
   async filterOrder(
@@ -160,5 +166,138 @@ export class OrderService {
     ];
 
     return this.orderModel.aggregate(pipeline).exec();
+  }
+
+  // Bill Generation
+  private async billGenerator(userId): Promise<void> {
+    const htmlCompile = async (data: BillingData): Promise<string> => {
+      const html = await readFile(
+        'src/modules/order/templates/index.hbs',
+        'utf8',
+      );
+      return compile(html)(data);
+    };
+
+    const data = await this.orderModel.aggregate([
+      {
+        $match: {
+          userId,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productData',
+        },
+      },
+      {
+        $project: {
+          username: '$user.name',
+          email: '$user.email',
+          address: '$user.address',
+          createdAt: 1,
+          mobile: '$user.mobile',
+          amount: 1,
+          products: {
+            $map: {
+              input: '$products',
+              as: 'product',
+              in: {
+                productName: {
+                  $arrayElemAt: [
+                    {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$productData',
+                            as: 'pd',
+                            cond: {
+                              $eq: ['$$pd._id', '$$product.productId'],
+                            },
+                          },
+                        },
+                        as: 'pd',
+                        in: '$$pd.name',
+                      },
+                    },
+                    0,
+                  ],
+                },
+                quantity: '$$product.quantity',
+                price: {
+                  $arrayElemAt: [
+                    {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$productData',
+                            as: 'pd',
+                            cond: {
+                              $eq: ['$$pd._id', '$$product.productId'],
+                            },
+                          },
+                        },
+                        as: 'pd',
+                        in: '$$pd.price',
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    // Process The Payment Before Bill Generation
+    await this.processPayment(data[0].amount);
+
+    // Start Creating Bill
+    const content = await htmlCompile(data[0]);
+    const browser = await launch();
+    const page = await browser.newPage();
+    await page.setContent(content);
+    // Save Pdf To Location
+    await page.pdf({
+      path: `src/modules/order/bills/${data[0]._id}.pdf`,
+      format: 'A4',
+      printBackground: true,
+    });
+
+    console.log('Bill generated successfully!');
+    await browser.close();
+    // Bill Creating Off
+  }
+
+  private async processPayment(amount): Promise<SuccessMessageDTO> {
+    const isSuccess = Math.random() < 0.8; // 80% chance of success
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (isSuccess) {
+          resolve({
+            success: true,
+            message: `${amount} Paid successfully.`,
+          });
+        } else {
+          reject(new Error('Payment failed. Please try again.'));
+        }
+      }, 1000);
+    });
   }
 }
