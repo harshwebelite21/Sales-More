@@ -10,10 +10,18 @@ export class ProductReview {
   reviewerId: Types.ObjectId;
 
   @Prop({ required: true, type: Number })
-  rating: number;
+  rating: Rating;
 
   @Prop({ required: true, type: String })
   reviewText: string;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(ProductReview);
+
+export enum Rating {
+  Poor = 1,
+  Fair,
+  Good,
+  VeryGood,
+  Excellent,
+}

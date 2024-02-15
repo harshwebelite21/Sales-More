@@ -5,11 +5,13 @@ import { convertToObjectId } from 'utils/converter';
 import { ProductReview } from './products-review.model';
 import {
   AddProductReviewDto,
-  DeleteReviewDto,
   GetReviewDto,
   UpdateReviewDto,
 } from './dto/products-review.dto';
-import { MatchStage } from './interfaces/products-review.interface';
+import {
+  MatchStage,
+  ProductReviewInterface,
+} from './interfaces/products-review.interface';
 
 @Injectable()
 export class ProductReviewService {
@@ -18,29 +20,32 @@ export class ProductReviewService {
     private readonly productReviewModel: Model<ProductReview>,
   ) {}
 
-  async createReview(review: AddProductReviewDto): Promise<void> {
-    const { productId, reviewerId, ...reviewData } = review;
+  async createReview(
+    reviewerId: string,
+    review: AddProductReviewDto,
+  ): Promise<void> {
+    const { productId, ...reviewData } = review;
     const reviewWithObjectId = {
       ...reviewData,
       reviewerId: convertToObjectId(reviewerId),
       productId: convertToObjectId(productId),
     };
 
-    const find = await this.productReviewModel.findOne({
+    const exists = await this.productReviewModel.exists({
       productId: reviewWithObjectId.productId,
       reviewerId: reviewWithObjectId.reviewerId,
     });
 
-    if (find) {
+    if (exists) {
       throw Error('Product reviewed  Already ');
     }
     await this.productReviewModel.create(reviewWithObjectId);
   }
 
-  async getReviewsByProductId(
+  async getReviews(
     reviewData: GetReviewDto,
-  ): Promise<ProductReview[]> {
-    const { rating, productName } = reviewData;
+  ): Promise<ProductReviewInterface[]> {
+    const { productName = 'A', rating } = reviewData;
     const productRegex = new RegExp(productName, 'i');
 
     const matchStage: MatchStage = {};
@@ -88,10 +93,7 @@ export class ProductReviewService {
     ]);
   }
 
-  async deleteReview({
-    productId,
-    reviewerId,
-  }: DeleteReviewDto): Promise<void> {
+  async deleteReview(reviewerId: string, productId: string): Promise<void> {
     await this.productReviewModel.deleteOne({
       productId: convertToObjectId(productId),
       reviewerId: convertToObjectId(reviewerId),
@@ -99,7 +101,8 @@ export class ProductReviewService {
   }
 
   async updateReview(
-    { productId, reviewerId }: DeleteReviewDto,
+    reviewerId: string,
+    productId: string,
     reviewData: UpdateReviewDto,
   ): Promise<void> {
     await this.productReviewModel.updateOne(

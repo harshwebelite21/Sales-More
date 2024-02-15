@@ -7,21 +7,22 @@ import {
   Query,
   Put,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { SuccessMessageDTO } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { AuthGuard } from 'guards/auth.guard';
+import { GetUserId } from 'modules/user/userId.decorator';
 import { ProductReviewService } from './products-review.service';
 import {
   AddProductReviewDto,
-  DeleteReviewDto,
   GetReviewDto,
   UpdateReviewDto,
 } from './dto/products-review.dto';
-import { ProductReview } from './products-review.model';
+import { ProductReviewInterface } from './interfaces/products-review.interface';
 
 @Controller('review')
-@ApiTags('Order')
+@ApiTags('Product-review')
 @UseGuards(AuthGuard)
 @ApiSecurity('JWT-auth')
 export class ProductReviewController {
@@ -29,10 +30,11 @@ export class ProductReviewController {
 
   @Post('/')
   async createReview(
+    @GetUserId() { userId }: UserIdRole,
     @Body() review: AddProductReviewDto,
   ): Promise<SuccessMessageDTO> {
     try {
-      await this.reviewService.createReview(review);
+      await this.reviewService.createReview(userId, review);
       return { success: true, message: 'Review added successfully' };
     } catch (error) {
       console.error('Error during Review Products:', error);
@@ -40,24 +42,25 @@ export class ProductReviewController {
     }
   }
 
-  @Get('/:productId')
-  async getReviewsByProductId(
+  @Get('/')
+  async getReviews(
     @Query() reviewData: GetReviewDto,
-  ): Promise<ProductReview[]> {
+  ): Promise<ProductReviewInterface[]> {
     try {
-      return this.reviewService.getReviewsByProductId(reviewData);
+      return this.reviewService.getReviews(reviewData);
     } catch (error) {
       console.error('Error during Getting Reviews:', error);
       throw Error('Error in Filtering Review');
     }
   }
 
-  @Delete('/')
-  async deleteProduct(
-    @Query() reviewIds: DeleteReviewDto,
+  @Delete('/:productId')
+  async deleteProductReview(
+    @GetUserId() { userId }: UserIdRole,
+    @Param('productId') productId: string,
   ): Promise<SuccessMessageDTO> {
     try {
-      await this.reviewService.deleteReview(reviewIds);
+      await this.reviewService.deleteReview(userId, productId);
       return { success: true, message: 'Review deleted successfully' };
     } catch (error) {
       console.error('Error during Delete Reviews:', error);
@@ -65,13 +68,14 @@ export class ProductReviewController {
     }
   }
 
-  @Put('/')
+  @Put('/:productId')
   async updateReview(
-    @Query() reviewIds: DeleteReviewDto,
+    @GetUserId() { userId }: UserIdRole,
+    @Param('productId') productId: string,
     @Body() reviewData: UpdateReviewDto,
   ): Promise<SuccessMessageDTO> {
     try {
-      await this.reviewService.updateReview(reviewIds, reviewData);
+      await this.reviewService.updateReview(userId, productId, reviewData);
       return { success: true, message: 'Review Updated successfully' };
     } catch (error) {
       console.error('Error during Updating Review:', error);
