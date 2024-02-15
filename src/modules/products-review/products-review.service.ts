@@ -113,4 +113,46 @@ export class ProductReviewService {
       reviewData,
     );
   }
+
+  async getReviewsByProductId(
+    productId: string,
+  ): Promise<ProductReviewInterface[]> {
+    return this.productReviewModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reviewerId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'productId',
+          foreignField: '_id',
+          as: 'productsData',
+        },
+      },
+      {
+        $unwind: '$productsData',
+      },
+      {
+        $match: {
+          productId: convertToObjectId(productId),
+        },
+      },
+      {
+        $project: {
+          userName: '$user.name',
+          productName: '$productsData.name',
+          rating: 1,
+          reviewText: 1,
+        },
+      },
+    ]);
+  }
 }

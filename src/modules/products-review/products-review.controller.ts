@@ -82,4 +82,16 @@ export class ProductReviewController {
       throw Error('Error in Updating Review');
     }
   }
+
+  @Get('/:productId')
+  async getReviewsByProductId(
+    @Param('productId') productId: string,
+  ): Promise<ProductReviewInterface[]> {
+    try {
+      return this.reviewService.getReviewsByProductId(productId);
+    } catch (error) {
+      console.error('Error during Getting Reviews By ProductId:', error);
+      throw Error('Error in Filtering Review By ProductId');
+    }
+  }
 }
