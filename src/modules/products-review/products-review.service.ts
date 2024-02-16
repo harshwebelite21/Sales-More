@@ -45,52 +45,17 @@ export class ProductReviewService {
   async getReviews(
     reviewData: GetReviewDto,
   ): Promise<ProductReviewInterface[]> {
-    const { productName = 'A', rating } = reviewData;
-    const productRegex = new RegExp(productName, 'i');
+    const { productName, rating } = reviewData;
 
     const matchStage: MatchStage = {};
     if (productName) {
-      matchStage['productsData.name'] = productRegex;
+      matchStage['productsData.name'] = new RegExp(productName, 'i');
     }
     if (rating) {
       matchStage.rating = rating;
     }
 
-    return this.productReviewModel.aggregate([
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'reviewerId',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      {
-        $unwind: '$user',
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'productId',
-          foreignField: '_id',
-          as: 'productsData',
-        },
-      },
-      {
-        $unwind: '$productsData',
-      },
-      {
-        $match: matchStage,
-      },
-      {
-        $project: {
-          userName: '$user.name',
-          productName: '$productsData.name',
-          rating: 1,
-          reviewText: 1,
-        },
-      },
-    ]);
+    return this.getReviewPipe(matchStage);
   }
 
   async deleteReview(reviewerId: string, productId: string): Promise<void> {
@@ -117,6 +82,14 @@ export class ProductReviewService {
   async getReviewsByProductId(
     productId: string,
   ): Promise<ProductReviewInterface[]> {
+    return this.getReviewPipe({
+      productId: convertToObjectId(productId),
+    });
+  }
+
+  private async getReviewPipe(
+    matchStage: MatchStage,
+  ): Promise<ProductReviewInterface[]> {
     return this.productReviewModel.aggregate([
       {
         $lookup: {
@@ -141,9 +114,7 @@ export class ProductReviewService {
         $unwind: '$productsData',
       },
       {
-        $match: {
-          productId: convertToObjectId(productId),
-        },
+        $match: matchStage,
       },
       {
         $project: {
