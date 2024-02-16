@@ -17,7 +17,7 @@ export class CustomerSupportService {
   constructor(
     @InjectModel('Ticket') private readonly ticketModel: Model<Ticket>,
   ) {}
-  async CreateTicket(userId: string, body: CreateTicketDto): Promise<void> {
+  async createTicket(userId: string, body: CreateTicketDto): Promise<void> {
     const ticketData = { ...body, userId: convertToObjectId(userId) };
     const exists = await this.ticketModel.exists({
       userId: ticketData.userId,
@@ -43,7 +43,6 @@ export class CustomerSupportService {
 
   //   To update ticket
   async updateTicket(userId: string, body: UpdateTicketDto): Promise<void> {
-    body = { ...body, updatedAt: new Date() };
     const result = await this.ticketModel.updateOne(
       {
         userId: convertToObjectId(userId),

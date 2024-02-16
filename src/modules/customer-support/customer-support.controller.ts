@@ -32,12 +32,12 @@ export class CustomerSupportController {
 
   // Create New Ticket
   @Post('/')
-  async CreateTicket(
+  async createTicket(
     @GetUserId() { userId }: UserIdRole,
     @Body() body: CreateTicketDto,
   ): Promise<SuccessMessageDTO> {
     try {
-      await this.customerSupportService.CreateTicket(userId, body);
+      await this.customerSupportService.createTicket(userId, body);
       return { success: true, message: 'Ticket Created Successfully' };
     } catch (error) {
       console.error('Error during Creating Ticket:', error);

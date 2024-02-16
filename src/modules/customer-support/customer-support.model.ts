@@ -8,7 +8,7 @@ export enum TicketStatus {
   Resolved,
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Ticket {
   @Prop({ required: true, ref: 'User', type: Types.ObjectId })
   userId: Types.ObjectId;
@@ -21,12 +21,6 @@ export class Ticket {
 
   @Prop({ default: TicketStatus.Open, type: Number })
   status: TicketStatus;
-
-  @Prop({ default: Date.now, type: Date })
-  createdAt: Date;
-
-  @Prop({ default: Date.now, type: Date })
-  updatedAt: Date;
 }
 
 export const TicketSchema = SchemaFactory.createForClass(Ticket);
