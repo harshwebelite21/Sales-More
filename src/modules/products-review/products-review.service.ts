@@ -45,17 +45,51 @@ export class ProductReviewService {
   async getReviews(
     reviewData: GetReviewDto,
   ): Promise<ProductReviewInterface[]> {
-    const { productName = 'A', rating } = reviewData;
-    const productRegex = new RegExp(productName, 'i');
+    const { productName, rating } = reviewData;
 
     const matchStage: MatchStage = {};
     if (productName) {
-      matchStage['productsData.name'] = productRegex;
+      matchStage['productsData.name'] = new RegExp(productName, 'i');
     }
     if (rating) {
       matchStage.rating = rating;
     }
 
+    return this.getReviewPipe(matchStage);
+  }
+
+  async deleteReview(reviewerId: string, productId: string): Promise<void> {
+    await this.productReviewModel.deleteOne({
+      productId: convertToObjectId(productId),
+      reviewerId: convertToObjectId(reviewerId),
+    });
+  }
+
+  async updateReview(
+    reviewerId: string,
+    productId: string,
+    reviewData: UpdateReviewDto,
+  ): Promise<void> {
+    await this.productReviewModel.updateOne(
+      {
+        productId: convertToObjectId(productId),
+        reviewerId: convertToObjectId(reviewerId),
+      },
+      reviewData,
+    );
+  }
+
+  async getReviewsByProductId(
+    productId: string,
+  ): Promise<ProductReviewInterface[]> {
+    return this.getReviewPipe({
+      productId: convertToObjectId(productId),
+    });
+  }
+
+  private async getReviewPipe(
+    matchStage: MatchStage,
+  ): Promise<ProductReviewInterface[]> {
     return this.productReviewModel.aggregate([
       {
         $lookup: {
@@ -91,26 +125,5 @@ export class ProductReviewService {
         },
       },
     ]);
-  }
-
-  async deleteReview(reviewerId: string, productId: string): Promise<void> {
-    await this.productReviewModel.deleteOne({
-      productId: convertToObjectId(productId),
-      reviewerId: convertToObjectId(reviewerId),
-    });
-  }
-
-  async updateReview(
-    reviewerId: string,
-    productId: string,
-    reviewData: UpdateReviewDto,
-  ): Promise<void> {
-    await this.productReviewModel.updateOne(
-      {
-        productId: convertToObjectId(productId),
-        reviewerId: convertToObjectId(reviewerId),
-      },
-      reviewData,
-    );
   }
 }

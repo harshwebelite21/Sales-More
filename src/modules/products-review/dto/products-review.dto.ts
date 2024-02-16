@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum } from 'class-validator';
 import { Rating } from '../products-review.model';
 
 export class AddProductReviewDto {
@@ -11,7 +11,7 @@ export class AddProductReviewDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  @IsEnum(Rating)
   rating: Rating;
 
   @ApiProperty()
@@ -23,7 +23,7 @@ export class AddProductReviewDto {
 export class UpdateReviewDto {
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
+  @IsEnum(Rating)
   rating?: Rating;
 
   @ApiProperty({ required: false })
@@ -40,7 +40,7 @@ export class GetReviewDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
+  @IsEnum(Rating)
   @Transform(({ value }) => parseInt(value))
   rating?: Rating;
 }
