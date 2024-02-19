@@ -34,11 +34,11 @@ export class CustomerSupportController {
   @Put('/:ticketId')
   async updateTicket(
     @Param('ticketId') ticketId: string,
-    @GetUserId() { userId }: UserIdRole,
+    @GetUserId() userInfo: UserIdRole,
     @Body() body: UpdateTicketDto,
   ): Promise<SuccessMessageDTO> {
     try {
-      await this.customerSupportService.updateTicket(ticketId, userId, body);
+      await this.customerSupportService.updateTicket(ticketId, userInfo, body);
       return { success: true, message: 'Ticket Updated Successfully' };
     } catch (error) {
       console.error('Error during Updating Ticket:', error);

@@ -100,8 +100,14 @@ export class ProductService {
   }
 
   // Tickets By ProductId
-  async ticketsByProductId(productId: string): Promise<Ticket[]> {
-    return this.ticketModel.find({ productId: convertToObjectId(productId) });
+  async ticketsByProductId(
+    productId: string,
+    userId: string,
+  ): Promise<Ticket[]> {
+    return this.ticketModel.find({
+      productId: convertToObjectId(productId),
+      userId: convertToObjectId(userId),
+    });
   }
 
   // Tickets By Admin

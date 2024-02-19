@@ -10,9 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { SuccessMessageDTO } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
+import { AuthGuard } from 'guards/auth.guard';
+import { GetUserId } from 'modules/user/userId.decorator';
 import {
   AddProductDto,
   AdminTicketQueryDataDto,
@@ -86,13 +88,15 @@ export class ProductController {
   }
 
   // Tickets endpoint
+  @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
   @Get('/tickets/:productId')
   async ticketsByProductId(
     @Param('productId') productId: string,
+    @GetUserId() { userId }: UserIdRole,
   ): Promise<Ticket[]> {
     try {
-      return this.productService.ticketsByProductId(productId);
+      return this.productService.ticketsByProductId(productId, userId);
     } catch (error) {
       console.error('Error during Filtering Tickets:', error);
       throw Error('Error in Filtering Tickets');

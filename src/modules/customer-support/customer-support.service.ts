@@ -2,8 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { convertToObjectId } from 'utils/converter';
+import { UserIdRole } from 'interfaces';
+import { Role } from 'modules/user/user.model';
 import { CreateTicketDto, UpdateTicketDto } from './dto/customer-support.dto';
 import { Ticket, TicketStatus } from './customer-support.model';
+import { UpdateTicketsQueryInterface } from './interface/cutomer-support.interface';
 
 @Injectable()
 export class CustomerSupportService {
@@ -31,16 +34,25 @@ export class CustomerSupportService {
   //   To update ticket
   async updateTicket(
     ticketId: string,
-    userId: string,
+    userInfo: UserIdRole,
     body: UpdateTicketDto,
   ): Promise<void> {
-    const result = await this.ticketModel.updateOne(
-      {
-        userId: convertToObjectId(userId),
-        _id: convertToObjectId(ticketId),
-      },
-      body,
-    );
+    const { userId, role } = userInfo;
+    const { subject, description, status } = body;
+    let query: UpdateTicketsQueryInterface = {
+      _id: convertToObjectId(ticketId),
+    };
+    let newFields = {};
+
+    if (role === Role.Admin) {
+      newFields = { status };
+    } else if (role === Role.User) {
+      query = { userId: convertToObjectId(userId), ...query };
+      newFields = { subject, description };
+    }
+
+    const result = await this.ticketModel.updateOne(query, newFields);
+
     if (!result.matchedCount) {
       throw new NotFoundException('Ticket not found.');
     }
