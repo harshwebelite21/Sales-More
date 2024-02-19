@@ -18,9 +18,14 @@ export class CustomerSupportService {
     @InjectModel('Ticket') private readonly ticketModel: Model<Ticket>,
   ) {}
   async createTicket(userId: string, body: CreateTicketDto): Promise<void> {
-    const ticketData = { ...body, userId: convertToObjectId(userId) };
+    const ticketData = {
+      ...body,
+      userId: convertToObjectId(userId),
+      productId: convertToObjectId(body.productId),
+    };
     const exists = await this.ticketModel.exists({
       userId: ticketData.userId,
+      productId: ticketData.productId,
       status: { $in: [TicketStatus.Open, TicketStatus.InProgress] },
     });
 
@@ -49,7 +54,7 @@ export class CustomerSupportService {
       },
       body,
     );
-    if (result.matchedCount === 0) {
+    if (!result.matchedCount) {
       throw new NotFoundException('Ticket not found.');
     }
   }

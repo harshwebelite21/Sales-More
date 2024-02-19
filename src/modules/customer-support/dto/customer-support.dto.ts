@@ -8,6 +8,11 @@ export class CreateTicketDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  productId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   subject: string;
 
   @ApiProperty()

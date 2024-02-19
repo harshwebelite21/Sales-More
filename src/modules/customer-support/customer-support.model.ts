@@ -13,6 +13,9 @@ export class Ticket {
   @Prop({ required: true, ref: 'User', type: Types.ObjectId })
   userId: Types.ObjectId;
 
+  @Prop({ required: true, type: Types.ObjectId, ref: 'Product' })
+  productId: Types.ObjectId;
+
   @Prop({ required: true, type: String })
   subject: string;
 

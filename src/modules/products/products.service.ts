@@ -3,8 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import { SortEnum } from 'enums';
 
+import { Ticket } from 'modules/customer-support/customer-support.model';
+import { convertToObjectId } from 'utils/converter';
 import {
   AddProductDto,
+  AdminTicketQueryDataDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
@@ -15,6 +18,8 @@ export class ProductService {
   constructor(
     @InjectModel('Product')
     private readonly productModel: Model<Product>,
+    @InjectModel('Ticket')
+    private readonly ticketModel: Model<Ticket>,
   ) {}
 
   // Get all products
@@ -92,5 +97,50 @@ export class ProductService {
       },
     ];
     return this.productModel.aggregate(pipeline).exec();
+  }
+
+  // Tickets By ProductId
+  async ticketsByProductId(productId: string): Promise<Ticket[]> {
+    return this.ticketModel.find({ productId: convertToObjectId(productId) });
+  }
+
+  // Tickets By Admin
+  async ticketsByAdmin(queryData: AdminTicketQueryDataDto): Promise<Ticket[]> {
+    const query = {
+      ...(queryData.productName && {
+        'productsData.name': new RegExp(queryData.productName, 'i'),
+      }),
+      ...(queryData.userName && {
+        'user.name': new RegExp(queryData.userName, 'i'),
+      }),
+    };
+
+    return this.ticketModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'productId',
+          foreignField: '_id',
+          as: 'productsData',
+        },
+      },
+      {
+        $unwind: '$productsData',
+      },
+      {
+        $match: query,
+      },
+    ]);
   }
 }
