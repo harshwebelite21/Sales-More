@@ -1,7 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { Types } from 'mongoose';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { TicketStatus } from '../customer-support.model';
 
 export class CreateTicketDto {
@@ -21,21 +20,7 @@ export class CreateTicketDto {
   description: string;
 }
 
-export class UpdateTicketDto extends PartialType(CreateTicketDto) {}
-
-export class QueryDataDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @Transform(({ value }) => parseInt(value))
-  @IsEnum(TicketStatus)
-  status?: TicketStatus;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  userId?: string | Types.ObjectId;
-}
-export class UpdateStatusDto {
+export class UpdateTicketDto extends PartialType(CreateTicketDto) {
   @Transform(({ value }) => parseInt(value))
   @ApiProperty()
   @IsNotEmpty()

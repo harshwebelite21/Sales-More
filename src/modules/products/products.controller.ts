@@ -13,7 +13,6 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { SuccessMessageDTO } from 'interfaces';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
-import { AuthGuard } from 'guards/auth.guard';
 import {
   AddProductDto,
   AdminTicketQueryDataDto,
@@ -87,7 +86,6 @@ export class ProductController {
   }
 
   // Tickets endpoint
-  @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
   @Get('/tickets/:productId')
   async ticketsByProductId(

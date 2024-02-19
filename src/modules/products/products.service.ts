@@ -106,12 +106,13 @@ export class ProductService {
 
   // Tickets By Admin
   async ticketsByAdmin(queryData: AdminTicketQueryDataDto): Promise<Ticket[]> {
+    const { productName, userName } = queryData;
     const query = {
-      ...(queryData.productName && {
-        'productsData.name': new RegExp(queryData.productName, 'i'),
+      ...(productName && {
+        'productsData.name': new RegExp(productName, 'i'),
       }),
-      ...(queryData.userName && {
-        'user.name': new RegExp(queryData.userName, 'i'),
+      ...(userName && {
+        'user.name': new RegExp(userName, 'i'),
       }),
     };
 
