@@ -10,10 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { SuccessMessageDTO } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
+import { Ticket } from 'modules/customer-support/customer-support.model';
+import { AuthGuard } from 'guards/auth.guard';
+import { GetUserId } from 'modules/user/userId.decorator';
 import {
   AddProductDto,
+  AdminTicketQueryDataDto,
   FilterProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
@@ -75,6 +79,42 @@ export class ProductController {
   // Filter Product
   @Get('/')
   async filterProduct(@Query() query: FilterProductDto): Promise<Product[]> {
-    return this.productService.filterProduct(query);
+    try {
+      return this.productService.filterProduct(query);
+    } catch (error) {
+      console.error('Error during Filtering Products:', error);
+      throw Error('Error in Filtering Product');
+    }
+  }
+
+  // Tickets endpoint
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Get('/tickets/:productId')
+  async ticketsByProductId(
+    @Param('productId') productId: string,
+    @GetUserId() { userId }: UserIdRole,
+  ): Promise<Ticket[]> {
+    try {
+      return this.productService.ticketsByProductId(productId, userId);
+    } catch (error) {
+      console.error('Error during Filtering Tickets:', error);
+      throw Error('Error in Filtering Tickets');
+    }
+  }
+
+  // Get All Tickets Admin end Point
+  @UseGuards(AdminAuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Get('admin/tickets')
+  async ticketsAdminFilter(
+    @Query() queryData: AdminTicketQueryDataDto,
+  ): Promise<Ticket[]> {
+    try {
+      return this.productService.ticketsByAdmin(queryData);
+    } catch (error) {
+      console.error('Error during Filtering Tickets:', error);
+      throw Error('Error in Filtering Tickets');
+    }
   }
 }

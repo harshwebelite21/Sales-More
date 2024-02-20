@@ -5,6 +5,8 @@ import { Response } from 'express';
 import { Model } from 'mongoose';
 import { generateJwtToken } from 'utils/jwt';
 
+import { Ticket } from 'modules/customer-support/customer-support.model';
+import { convertToObjectId } from 'utils/converter';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
 import { Cart } from '../cart/cart.model';
@@ -14,6 +16,7 @@ export class UserService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Cart') private readonly cartModel: Model<Cart>,
+    @InjectModel('Ticket') private readonly ticketModel: Model<Ticket>,
   ) {}
 
   // Validate user login and generate JWT token
@@ -88,5 +91,16 @@ export class UserService {
       throw new Error('User data not found');
     }
     return userData;
+  }
+
+  // To view All Tickets of user
+  async userTickets(userId: string): Promise<Ticket[]> {
+    const ticketData = await this.ticketModel.find({
+      userId: convertToObjectId(userId),
+    });
+    if (!ticketData.length) {
+      throw new Error('No Tickets found for your account ');
+    }
+    return ticketData;
   }
 }

@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ProductReviewModule } from 'modules/products-review/products-review.module';
+import { CustomerSupportModule } from 'modules/customer-support/customer-support.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -23,6 +24,7 @@ import { CartSchema } from './modules/cart/cart.model';
     CartModule,
     OrderModule,
     ProductReviewModule,
+    CustomerSupportModule,
     ScheduleModule.forRoot(),
     MongooseModule.forFeature([{ name: 'Cart', schema: CartSchema }]),
   ],

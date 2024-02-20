@@ -103,3 +103,15 @@ export class FilterProductDto {
   @IsEnum(SortEnum)
   sortOrder?: SortEnum;
 }
+
+export class AdminTicketQueryDataDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  userName: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  productName: string;
+}
