@@ -6,7 +6,7 @@ import { UserIdRole } from 'interfaces';
 import { Role } from 'modules/user/user.model';
 import { CreateTicketDto, UpdateTicketDto } from './dto/customer-support.dto';
 import { Ticket, TicketStatus } from './customer-support.model';
-import { UpdateTicketsQueryInterface } from './interface/cutomer-support.interface';
+import { UpdateTicketsQueryInterface } from './interface/customer-support.interface';
 
 @Injectable()
 export class CustomerSupportService {
