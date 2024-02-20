@@ -20,6 +20,7 @@ import {
   UserSignupInterceptor,
 } from 'interceptor/interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
+import { Ticket } from 'modules/customer-support/customer-support.model';
 import { UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
@@ -129,6 +130,19 @@ export class UserController {
       return this.userService.fetchUserList(name);
     } catch (error) {
       console.error('Error during view user:', error);
+      throw error;
+    }
+  }
+
+  // All tickets of logged in user
+  @Get('user/tickets')
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  async userTickets(@GetUserId() { userId }: UserIdRole): Promise<Ticket[]> {
+    try {
+      return this.userService.userTickets(userId);
+    } catch (error) {
+      console.error('Error during view Tickets:', error);
       throw error;
     }
   }
