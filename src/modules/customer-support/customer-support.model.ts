@@ -27,3 +27,6 @@ export class Ticket {
 }
 
 export const TicketSchema = SchemaFactory.createForClass(Ticket);
+TicketSchema.index({ userId: 1, productId: 1, status: 1 });
+TicketSchema.index({ userId: 1 });
+TicketSchema.index({ productId: 1 });

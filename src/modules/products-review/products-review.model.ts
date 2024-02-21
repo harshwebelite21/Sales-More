@@ -17,6 +17,9 @@ export class ProductReview {
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(ProductReview);
+ReviewSchema.index({ productId: 1, reviewerId: 1 });
+ReviewSchema.index({ rating: 1 });
+ReviewSchema.index({ productId: 1 });
 
 export enum Rating {
   Poor = 1,

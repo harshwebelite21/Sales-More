@@ -19,3 +19,6 @@ export class Order extends Document {
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
+OrderSchema.index({ userId: 1 });
+OrderSchema.index({ amount: 1 });
+OrderSchema.index({ userId: 1, amount: 1 });
