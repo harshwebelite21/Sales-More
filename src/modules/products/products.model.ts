@@ -28,6 +28,10 @@ export class Product extends Document {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+ProductSchema.index({ name: 1 });
+ProductSchema.index({ price: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ name: 1, price: 1, category: 1 });
 
 // category.enum.ts
 export enum CategoryEnum {

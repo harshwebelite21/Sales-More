@@ -49,6 +49,8 @@ export class User extends Document {
   mobile: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.index({ name: 1 });
+UserSchema.index({ email: 1 });
 
 // Middleware to encrypt password before saving new data
 UserSchema.pre('save', async function (next) {
