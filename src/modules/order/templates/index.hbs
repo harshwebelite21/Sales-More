@@ -1,0 +1,129 @@
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>A simple, clean, and responsive HTML invoice template</title>
+  <style>
+    /* Reset CSS */
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    ul,
+    ol,
+    li,
+    table,
+    tr,
+    td {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Helvetica Neue',
+        'Helvetica', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height:
+        24px;
+      color: #555;
+    }
+
+    /* Invoice Styles */
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .invoice-box table {
+      width: 100%;
+      border-collapse:
+        collapse;
+    }
+
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .invoice-box table tr.item td {
+      border-bottom: 1px solid #eee;
+    }
+
+    .invoice-box table tr.item.last td {
+      border-bottom: none;
+    }
+
+    .invoice-box table tr.total td:nth-child(2) {
+      border-top: 2px solid #eee;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /*
+      Address Styles */
+    .address-details {
+      margin-bottom: 20px;
+    }
+
+    .address-details table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .address-details table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+  </style>
+</head>
+
+<body>
+  <div class='invoice-box'>
+    <center>
+      <h1>Invoice</h1>
+    </center>
+    <div class='address-details'>
+      <h4>Name : {{username}}</h4>
+      <h4>Email : {{email}}</h4>
+      <h4>Mobile:{{mobile}}</h4>
+      <h4>Address : {{address}}</h4>
+      <h4>Date : {{createdAt}}</h4>
+      <h4>Invoice No : {{_id}}</h4>
+
+    </div>
+    <table cellpadding='0' cellspacing='0'>
+      <tr class='heading'>
+        <td>Item</td>
+        <td>Price</td>
+        <td>Quantity</td>
+      </tr>
+      {{#each products as |product|}}
+      <tr class='item'>
+        <td>{{product.productName}}</td>
+        <td>{{product.price}}</td>
+        <td>{{product.quantity}}</td>
+      </tr>
+      {{/each}}
+      <tr class='total'>
+        <td></td>
+        <td></td>
+        <td>Total: ${{amount}}</td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>
