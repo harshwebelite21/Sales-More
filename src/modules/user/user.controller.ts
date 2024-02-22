@@ -13,8 +13,6 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { config } from 'dotenv';
-config();
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,6 +21,8 @@ import {
   UserInterceptor,
   UserSignupInterceptor,
 } from 'interceptor/interceptor';
+import { appConfig } from 'config/appConfig';
+import { AvatarValidationInterceptor } from 'interceptor/file.interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
 import { UserIdRole } from 'interfaces';
@@ -155,7 +155,7 @@ export class UserController {
   @Post('user/upload-avatar')
   @UseGuards(AuthGuard)
   @ApiSecurity('JWT-auth')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file'), AvatarValidationInterceptor)
   async uploadAvatar(
     @GetUserId() { userId }: UserIdRole,
     @UploadedFile() { path }: Express.Multer.File,
@@ -177,7 +177,7 @@ export class UserController {
     @Query('imagedata') imagedata: string,
     @Res() res: Response,
   ): Promise<void> {
-    const serverUrl = process.env.SERVER_URL;
+    const serverUrl = appConfig.imageServerUrl;
     if (!serverUrl) {
       throw Error('Server url Not found');
     }
