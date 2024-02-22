@@ -7,6 +7,7 @@ import {
   Put,
   Query,
   Res,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -14,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'guards/auth.guard';
 import {
   UserInterceptor,
@@ -21,7 +23,7 @@ import {
 } from 'interceptor/interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
-import { UserIdRole } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
@@ -145,5 +147,32 @@ export class UserController {
       console.error('Error during view Tickets:', error);
       throw error;
     }
+  }
+
+  // Upload Avatar
+  @Post('user/upload-avatar')
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAvatar(
+    @GetUserId() { userId }: UserIdRole,
+    @UploadedFile() { path }: Express.Multer.File,
+  ): Promise<SuccessMessageDTO> {
+    try {
+      await this.userService.uploadAvatar(userId, path);
+      return { success: true, message: 'Avatar added successfully' };
+    } catch (error) {
+      console.error('Error during Adding Avatar:', error);
+      throw error;
+    }
+  }
+
+  // Download Image
+  @Get('user/download-image')
+  async downloadAvatarFile(
+    @Body() body: { imagedata: string },
+    @Res() res: Response,
+  ): Promise<void> {
+    res.download(body.imagedata);
   }
 }

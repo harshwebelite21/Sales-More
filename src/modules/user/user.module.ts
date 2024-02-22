@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule } from 'modules/database/database.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 import { TicketSchema } from 'modules/customer-support/customer-support.model';
 import { UserController } from './user.controller';
@@ -16,6 +17,9 @@ import { CartSchema } from '../cart/cart.model';
       { name: 'Cart', schema: CartSchema },
       { name: 'Ticket', schema: TicketSchema },
     ]),
+    MulterModule.register({
+      dest: './uploads', // Specify your upload directory
+    }),
   ],
   controllers: [UserController],
   providers: [UserService],

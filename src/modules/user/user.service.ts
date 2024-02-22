@@ -103,4 +103,9 @@ export class UserService {
     }
     return ticketData;
   }
+
+  // To Upload avatar path in database
+  async uploadAvatar(userId: string, path: string): Promise<void> {
+    await this.userModel.updateOne({ _id: userId }, { $set: { avatar: path } });
+  }
 }

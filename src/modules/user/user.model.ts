@@ -47,6 +47,9 @@ export class User extends Document {
 
   @Prop({ type: String, required: true })
   mobile: string;
+
+  @Prop({ type: String })
+  avatar: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.index({ name: 1 });
