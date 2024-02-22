@@ -13,6 +13,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { config } from 'dotenv';
+config();
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,7 +25,7 @@ import {
 } from 'interceptor/interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
-import { SuccessMessageDTO, UserIdRole } from 'interfaces';
+import { UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
@@ -157,10 +159,10 @@ export class UserController {
   async uploadAvatar(
     @GetUserId() { userId }: UserIdRole,
     @UploadedFile() { path }: Express.Multer.File,
-  ): Promise<SuccessMessageDTO> {
+  ): Promise<string> {
     try {
       await this.userService.uploadAvatar(userId, path);
-      return { success: true, message: 'Avatar added successfully' };
+      return path;
     } catch (error) {
       console.error('Error during Adding Avatar:', error);
       throw error;
@@ -168,11 +170,19 @@ export class UserController {
   }
 
   // Download Image
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
   @Get('user/download-image')
   async downloadAvatarFile(
-    @Body() body: { imagedata: string },
+    @Query('imagedata') imagedata: string,
     @Res() res: Response,
   ): Promise<void> {
-    res.download(body.imagedata);
+    const serverUrl = process.env.SERVER_URL;
+    if (!serverUrl) {
+      throw Error('Server url Not found');
+    }
+    // const finalUrl = serverUrl + imagedata;
+
+    res.download(imagedata);
   }
 }
