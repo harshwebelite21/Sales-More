@@ -21,23 +21,12 @@ export class AvatarValidationInterceptor implements NestInterceptor {
 
     const mimeType = lookup(file.originalname);
 
-    const allowedMimeTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/svg+xml',
-      'image/webp',
-      'image/heic',
-    ];
-
-    if (!allowedMimeTypes.includes(mimeType)) {
-      throw new BadRequestException(
-        'File must be a JPEG, PNG, GIF, SVG, WEBP, HEIC image',
-      );
+    if (!['image/jpeg', 'image/png'].includes(mimeType)) {
+      throw new BadRequestException('File must be a JPG or PNG image');
     }
 
-    if (file.size > 1 * 1024 * 1024) {
-      // 1 MB limit
+    if (file.size > 2 * 1024 * 1024) {
+      // 2 MB limit
       throw new BadRequestException('File size must be less than 2MB');
     }
 

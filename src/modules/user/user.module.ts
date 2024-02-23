@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { diskStorage } from 'multer';
 import { DatabaseModule } from 'modules/database/database.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { Request } from 'express';
 
 import { TicketSchema } from 'modules/customer-support/customer-support.model';
 import { UserController } from './user.controller';
@@ -18,7 +20,27 @@ import { CartSchema } from '../cart/cart.model';
       { name: 'Ticket', schema: TicketSchema },
     ]),
     MulterModule.register({
-      dest: './uploads', // Specify your upload directory
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          let customPath = '';
+          if (file.mimetype == 'application/pdf') {
+            customPath = './uploads/documents';
+          } else {
+            customPath = './uploads/images';
+          }
+          callback(null, customPath);
+        },
+        filename: (req: Request & { userId: string }, file, callback) => {
+          const originalFileName = file.originalname
+            .split('.')
+            .slice(0, -1)
+            .join('.');
+
+          const fileExtension = file.originalname.split('.').pop();
+          const newFilename = `${originalFileName}_${req.userId}.${fileExtension}`;
+          callback(null, newFilename);
+        },
+      }),
     }),
   ],
   controllers: [UserController],

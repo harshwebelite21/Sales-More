@@ -34,7 +34,6 @@ import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import { UserDocuments } from './interfaces/user.interface';
 
 @Controller('/')
 @ApiTags('User')
@@ -206,10 +205,7 @@ export class UserController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<SuccessMessageDTO> {
     try {
-      const documents: UserDocuments[] = files.map((file) => ({
-        name: file.originalname,
-        path: file.path,
-      }));
+      const documents = files.map((file) => file.path);
       await this.userService.uploadDocuments(userId, documents);
       return { success: true, message: 'Document Uploaded successfully' };
     } catch (error) {
