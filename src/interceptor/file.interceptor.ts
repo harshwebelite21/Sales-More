@@ -7,7 +7,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import * as mimeTypes from 'mime-types';
+import { lookup } from 'mime-types';
 
 @Injectable()
 export class AvatarValidationInterceptor implements NestInterceptor {
@@ -19,14 +19,25 @@ export class AvatarValidationInterceptor implements NestInterceptor {
       throw new BadRequestException('No file uploaded');
     }
 
-    const mimeType = mimeTypes.lookup(file.originalname);
+    const mimeType = lookup(file.originalname);
 
-    if (!['image/jpeg', 'image/png'].includes(mimeType)) {
-      throw new BadRequestException('File must be a JPG or PNG image');
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/svg+xml',
+      'image/webp',
+      'image/heic',
+    ];
+
+    if (!allowedMimeTypes.includes(mimeType)) {
+      throw new BadRequestException(
+        'File must be a JPEG, PNG, GIF, SVG, WEBP, HEIC image',
+      );
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      // 2 MB limit
+    if (file.size > 1 * 1024 * 1024) {
+      // 1 MB limit
       throw new BadRequestException('File size must be less than 2MB');
     }
 
@@ -42,7 +53,7 @@ export class MultipleFileValidator implements NestInterceptor {
       throw new BadRequestException('No file uploaded');
     }
     files.forEach((file) => {
-      const mimeType = mimeTypes.lookup(file.originalname);
+      const mimeType = lookup(file.originalname);
 
       if (mimeType !== 'application/pdf') {
         throw new BadRequestException('File must be a PDF');
