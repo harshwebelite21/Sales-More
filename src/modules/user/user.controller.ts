@@ -8,6 +8,7 @@ import {
   Query,
   Res,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -15,21 +16,25 @@ import {
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'guards/auth.guard';
 import {
   UserInterceptor,
   UserSignupInterceptor,
 } from 'interceptor/interceptor';
 import { appConfig } from 'config/appConfig';
-import { AvatarValidationInterceptor } from 'interceptor/file.interceptor';
+import {
+  AvatarValidationInterceptor,
+  MultipleFileValidator,
+} from 'interceptor/file.interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
-import { UserIdRole } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { UserDocuments } from './interfaces/user.interface';
 
 @Controller('/')
 @ApiTags('User')
@@ -177,12 +182,39 @@ export class UserController {
     @Query('imagedata') imagedata: string,
     @Res() res: Response,
   ): Promise<void> {
-    const serverUrl = appConfig.imageServerUrl;
-    if (!serverUrl) {
-      throw Error('Server url Not found');
-    }
-    // const finalUrl = serverUrl + imagedata;
+    try {
+      const serverUrl = appConfig.imageServerUrl;
+      if (!serverUrl) {
+        throw Error('Server url Not found');
+      }
+      // const finalUrl = serverUrl + imagedata;
 
-    res.download(imagedata);
+      res.download(imagedata);
+    } catch (error) {
+      console.error('Error during Downloading Avatar:', error);
+      throw error;
+    }
+  }
+
+  // Upload Multiple Files
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Post('user/upload-documents')
+  @UseInterceptors(FilesInterceptor('files'), MultipleFileValidator)
+  async uploadFiles(
+    @GetUserId() { userId }: UserIdRole,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ): Promise<SuccessMessageDTO> {
+    try {
+      const documents: UserDocuments[] = files.map((file) => ({
+        name: file.originalname,
+        path: file.path,
+      }));
+      await this.userService.uploadDocuments(userId, documents);
+      return { success: true, message: 'Document Uploaded successfully' };
+    } catch (error) {
+      console.error('Error during Uploading documents:', error);
+      throw error;
+    }
   }
 }

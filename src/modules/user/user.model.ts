@@ -50,6 +50,12 @@ export class User extends Document {
 
   @Prop({ type: String })
   avatar: string;
+
+  @Prop([{ name: { type: String }, path: { type: String } }])
+  documents: {
+    name: string;
+    path: string;
+  }[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.index({ name: 1 });

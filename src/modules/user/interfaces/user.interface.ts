@@ -10,3 +10,7 @@ export interface VerifiedToken {
   userId: Types.ObjectId;
   role: Role;
 }
+export interface UserDocuments {
+  name: string;
+  path: string;
+}

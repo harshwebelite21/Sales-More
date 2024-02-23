@@ -9,6 +9,7 @@ import { Ticket } from 'modules/customer-support/customer-support.model';
 import { convertToObjectId } from 'utils/converter';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { User } from './user.model'; // Assuming the model file is named user.model.ts
+import { UserDocuments } from './interfaces/user.interface';
 import { Cart } from '../cart/cart.model';
 
 @Injectable()
@@ -107,5 +108,13 @@ export class UserService {
   // To Upload avatar path in database
   async uploadAvatar(userId: string, path: string): Promise<void> {
     await this.userModel.updateOne({ _id: userId }, { $set: { avatar: path } });
+  }
+
+  // To upload the user documents
+  async uploadDocuments(
+    userId: string,
+    documents: UserDocuments[],
+  ): Promise<void> {
+    await this.userModel.updateOne({ _id: userId }, { $set: { documents } });
   }
 }

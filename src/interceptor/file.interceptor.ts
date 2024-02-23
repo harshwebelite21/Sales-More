@@ -33,3 +33,27 @@ export class AvatarValidationInterceptor implements NestInterceptor {
     return next.handle();
   }
 }
+
+export class MultipleFileValidator implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<void> {
+    const request = context.switchToHttp().getRequest();
+    const files = request.files;
+    if (!files) {
+      throw new BadRequestException('No file uploaded');
+    }
+    files.forEach((file) => {
+      const mimeType = mimeTypes.lookup(file.originalname);
+
+      if (mimeType !== 'application/pdf') {
+        throw new BadRequestException('File must be a PDF');
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        // 2 MB limit
+        throw new BadRequestException('File size must be less than 2MB');
+      }
+    });
+
+    return next.handle();
+  }
+}
