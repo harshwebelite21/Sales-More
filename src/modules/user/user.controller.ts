@@ -7,6 +7,8 @@ import {
   Put,
   Query,
   Res,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -14,14 +16,20 @@ import {
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'guards/auth.guard';
 import {
   UserInterceptor,
   UserSignupInterceptor,
 } from 'interceptor/interceptor';
+import { appConfig } from 'config/appConfig';
+import {
+  AvatarValidationInterceptor,
+  MultipleFileValidator,
+} from 'interceptor/file.interceptor';
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
-import { UserIdRole } from 'interfaces';
+import { SuccessMessageDTO, UserIdRole } from 'interfaces';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
@@ -143,6 +151,65 @@ export class UserController {
       return this.userService.userTickets(userId);
     } catch (error) {
       console.error('Error during view Tickets:', error);
+      throw error;
+    }
+  }
+
+  // Upload Avatar
+  @Post('user/upload-avatar')
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @UseInterceptors(FileInterceptor('file'), AvatarValidationInterceptor)
+  async uploadAvatar(
+    @GetUserId() { userId }: UserIdRole,
+    @UploadedFile() { path }: Express.Multer.File,
+  ): Promise<string> {
+    try {
+      await this.userService.uploadAvatar(userId, path);
+      return path;
+    } catch (error) {
+      console.error('Error during Adding Avatar:', error);
+      throw error;
+    }
+  }
+
+  // Download Image
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Get('user/download-image')
+  async downloadAvatarFile(
+    @Query('imagedata') imagedata: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      const serverUrl = appConfig.imageServerUrl;
+      if (!serverUrl) {
+        throw Error('Server url Not found');
+      }
+      // const finalUrl = serverUrl + imagedata;
+
+      res.download(imagedata);
+    } catch (error) {
+      console.error('Error during Downloading Avatar:', error);
+      throw error;
+    }
+  }
+
+  // Upload Multiple Files
+  @UseGuards(AuthGuard)
+  @ApiSecurity('JWT-auth')
+  @Post('user/upload-documents')
+  @UseInterceptors(FilesInterceptor('files'), MultipleFileValidator)
+  async uploadFiles(
+    @GetUserId() { userId }: UserIdRole,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ): Promise<SuccessMessageDTO> {
+    try {
+      const documents = files.map((file) => file.path);
+      await this.userService.uploadDocuments(userId, documents);
+      return { success: true, message: 'Document Uploaded successfully' };
+    } catch (error) {
+      console.error('Error during Uploading documents:', error);
       throw error;
     }
   }
