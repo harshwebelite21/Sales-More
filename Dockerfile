@@ -1,21 +1,38 @@
-# Use official Node.js image as the base image
-FROM node
+# First Stage : to install and build dependencies
+FROM node:21.5.0 as builder
 
-# Set the working directory inside the container
-WORKDIR /app
+# Set to a non-root built-in user `node`
+USER node
 
-# Copy package.json and yarn.lock to the working directory
-COPY package.json yarn.lock ./
+# Create app directory (with user `node`)
+RUN mkdir -p /home/node/app
+WORKDIR /home/node/app
 
-# Install dependencies using Yarn
-RUN yarn 
+# Bundle app source code
+COPY --chown=node package.json ./
+COPY --chown=node yarn.lock ./
+RUN yarn install --frozen-lockfile
+COPY --chown=node . .
+RUN yarn build
 
-# Copy the rest of the application code
-COPY . .
+# Second Stage : Setup command to run your app using lightweight node image
+FROM node:21.5.0
+USER node
+WORKDIR /home/node/app
 
-# Expose the port your app runs on
-EXPOSE 3000
+# Copy the dist folder and required folders only
+COPY --from=builder --chown=node /home/node/app/node_modules ./node_modules
+COPY --from=builder --chown=node /home/node/app/dist ./dist
+COPY --from=builder --chown=node /home/node/app/package.json .
+COPY --from=builder --chown=node /home/node/app/tsconfig.json .
 
-# Command to run your app using yarn start
+# Set environment variables
+ENV DATABASE_URL=mongodb+srv://harsh:harsh@demoproject.eij1cj6.mongodb.net/ \
+    PORT=3000 \
+    SECRETKEY=your_secret_key \
+    SERVER_URL=https://example.com/
+
+EXPOSE ${PORT}
+
+# Start app
 CMD ["yarn", "run", "start"]
-
