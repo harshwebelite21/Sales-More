@@ -38,6 +38,7 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api/swagger', app, document);
   await app.listen(appConfig.port);
+  console.log('Server is running on  ', await app.getUrl());
 }
 bootstrap().catch((error) => {
   console.log('Error in Server Creation :- ', error);
