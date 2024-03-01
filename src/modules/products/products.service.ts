@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import { SortEnum } from 'enums';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 import { Ticket } from 'modules/customer-support/customer-support.model';
 import { convertToObjectId } from 'utils/converter';
@@ -20,11 +22,20 @@ export class ProductService {
     private readonly productModel: Model<Product>,
     @InjectModel('Ticket')
     private readonly ticketModel: Model<Ticket>,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
   ) {}
 
   // Get all products
   async getAllProducts(): Promise<Product[]> {
-    return this.productModel.find();
+    const cacheData: Product[] | undefined =
+      await this.cacheService.get('products');
+    if (cacheData && cacheData.length > 0) {
+      return cacheData;
+    } else {
+      const data: Product[] = await this.productModel.find();
+      await this.cacheService.set('products', data, 60000);
+      return data;
+    }
   }
 
   // Add product data
