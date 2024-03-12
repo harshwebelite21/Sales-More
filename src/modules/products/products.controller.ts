@@ -117,4 +117,11 @@ export class ProductController {
       throw Error('Error in Filtering Tickets');
     }
   }
+
+  // Get All Products
+  @ApiSecurity('JWT-auth')
+  @Get('/get-all-products')
+  async getAllProducts(): Promise<Product[]> {
+    return this.productService.getAllProducts();
+  }
 }
