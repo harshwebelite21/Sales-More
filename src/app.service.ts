@@ -3,6 +3,45 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return `<html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Sals More</title>
+      <style>
+        /* Add your basic styling here */
+        body {
+          font-family: sans-serif;
+          margin: 0;
+          padding: 0;
+        }
+        header {
+          background-color: #f0f0f0;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .logo {
+          width: 200px;
+          height: auto;
+        }
+        main {
+          padding: 50px;
+        }
+      </style>
+    </head>
+    <body>
+      <header>
+        <img class="logo" src="data:image/jpeg;base64,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" alt="Sals More Logo">
+      </header>
+      <main>
+        <h1>Welcome to Sals More!</h1>
+        <p>"Welcome to Sales More, your ultimate online destination for discovering unbeatable deals on a wide range of products! From the latest gadgets and electronics to fashion essentials and home goods, our e-commerce platform is designed to cater to all your shopping needs. With Sales More, experience hassle-free shopping with just a few clicks, enjoy exceptional customer service, and take advantage of our fast shipping. Dive into a world where quality meets affordability—start your shopping journey with us today and save more with every purchase!"
+        </p>
+      </main>
+    </body>
+    </html>
+    `;
   }
 }

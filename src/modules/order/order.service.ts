@@ -75,12 +75,11 @@ export class OrderService {
       products: cartProducts.products,
       amount: totalBill,
     });
+    // To Generate Bill
+    await this.billGenerator(userId);
 
     // To Delete cart from the Cart collection After saving History in Order Table
     await this.cartModel.deleteOne({ userId });
-
-    // To Generate Bill
-    await this.billGenerator(userId);
   }
 
   async filterOrder(
@@ -285,7 +284,7 @@ export class OrderService {
   }
 
   private async processPayment(amount): Promise<SuccessMessageDTO> {
-    const isSuccess = Math.random() < 0.8; // 80% chance of success
+    const isSuccess = Math.random() < 0.9; // 80% chance of success
 
     return new Promise((resolve, reject) => {
       setTimeout(() => {

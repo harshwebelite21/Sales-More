@@ -34,6 +34,7 @@ import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import * as path from 'path';
 
 @Controller('/')
 @ApiTags('User')
@@ -187,8 +188,7 @@ export class UserController {
         throw Error('Server url Not found');
       }
       // const finalUrl = serverUrl + imagedata;
-
-      res.download(imagedata);
+      res.download(path.join('src/uploads/images', imagedata));
     } catch (error) {
       console.error('Error during Downloading Avatar:', error);
       throw error;

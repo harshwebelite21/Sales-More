@@ -11,4 +11,9 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('/favicon.ico')
+  handleFavicon(): { status: number } {
+    return { status: 204 };
+  }
 }

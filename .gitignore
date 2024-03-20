@@ -34,4 +34,4 @@ lerna-debug.log*
 
 src/modules/order/bills/
 
-/uploads
+src/uploads/images/*

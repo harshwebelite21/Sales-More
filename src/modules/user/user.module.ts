@@ -24,9 +24,9 @@ import { CartSchema } from '../cart/cart.model';
         destination: (req, file, callback) => {
           let customPath = '';
           if (file.mimetype == 'application/pdf') {
-            customPath = './uploads/documents';
+            customPath = 'src/uploads/documents';
           } else {
-            customPath = './uploads/images';
+            customPath = 'src/uploads/images';
           }
           callback(null, customPath);
         },
