@@ -1,11 +1,12 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import * as cookieParser from 'cookie-parser'; // Import cookie-parser
+import cookieParser from 'cookie-parser'; // Import cookie-parser
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CacheModule } from '@nestjs/cache-manager';
 
 import { ProductReviewModule } from 'modules/products-review/products-review.module';
 import { CustomerSupportModule } from 'modules/customer-support/customer-support.module';
+import { PaymentModule } from 'modules/payment/payment.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -27,6 +28,7 @@ import { CartSchema } from './modules/cart/cart.model';
     OrderModule,
     ProductReviewModule,
     CustomerSupportModule,
+    PaymentModule,
     ScheduleModule.forRoot(),
     MongooseModule.forFeature([{ name: 'Cart', schema: CartSchema }]),
   ],
