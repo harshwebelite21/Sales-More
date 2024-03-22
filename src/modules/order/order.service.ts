@@ -6,7 +6,9 @@ import { SortEnum } from 'enums';
 import { compile } from 'handlebars';
 import { readFile } from 'fs-extra';
 
-import { SuccessMessageDTO, UserIdRole } from 'interfaces';
+import { UserIdRole } from 'interfaces';
+import { PaymentService } from 'modules/payment/payment.service';
+import axios from 'axios';
 import { convertToObjectId } from 'utils/converter';
 import { OrderQueryInputDto } from './dto/order.dto';
 import { BillingData, OrderFilterType } from './interfaces/order.interface';
@@ -21,6 +23,7 @@ export class OrderService {
     @InjectModel('Order') private readonly orderModel: Model<Order>,
     @InjectModel('Cart') private readonly cartModel: Model<Cart>,
     @InjectModel('Product') private readonly productModel: Model<Product>,
+    private readonly paymentService: PaymentService,
   ) {}
   // Create a Order
   async checkOut(userData: UserIdRole): Promise<void> {
@@ -79,7 +82,7 @@ export class OrderService {
     await this.billGenerator(userId);
 
     // To Delete cart from the Cart collection After saving History in Order Table
-    await this.cartModel.deleteOne({ userId });
+    // await this.cartModel.deleteOne({ userId });
   }
 
   async filterOrder(
@@ -263,8 +266,11 @@ export class OrderService {
       },
     ]);
 
+    const amount = data[0].amount;
     // Process The Payment Before Bill Generation
-    await this.processPayment(data[0].amount);
+    await axios.post('http://localhost:3000/payment/processPayment', {
+      amount,
+    });
 
     // Start Creating Bill
     const content = await htmlCompile(data[0]);
@@ -281,22 +287,5 @@ export class OrderService {
     console.log('Bill generated successfully!');
     await browser.close();
     // Bill Creating Off
-  }
-
-  private async processPayment(amount): Promise<SuccessMessageDTO> {
-    const isSuccess = Math.random() < 0.9; // 80% chance of success
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (isSuccess) {
-          resolve({
-            success: true,
-            message: `${amount} Paid successfully.`,
-          });
-        } else {
-          reject(new Error('Payment failed. Please try again.'));
-        }
-      }, 1000);
-    });
   }
 }

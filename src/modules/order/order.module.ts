@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { PaymentModule } from 'modules/payment/payment.module';
 import { OrderController } from './order.controller';
 import { OrderSchema } from './order.model';
 import { OrderService } from './order.service';
@@ -11,6 +12,7 @@ import { ProductSchema } from '../products/products.model';
 @Module({
   imports: [
     DatabaseModule,
+    PaymentModule,
     MongooseModule.forFeature([
       { name: 'Order', schema: OrderSchema },
       { name: 'Cart', schema: CartSchema },
