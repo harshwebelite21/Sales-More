@@ -43,6 +43,20 @@ export class ProductController {
     }
   }
 
+  @Get('/:productId')
+  async getSingleProduct(
+    @Param('productId') productId: string,
+  ): Promise<{ data: Product | null }> {
+    try {
+      const data: Product | null =
+        await this.productService.getSingleProduct(productId);
+      return { data };
+    } catch (error) {
+      console.error('Error during Adding Products:', error);
+      throw error;
+    }
+  }
+
   // Update product details
   @Put('/:productId')
   @UseGuards(AdminAuthGuard)

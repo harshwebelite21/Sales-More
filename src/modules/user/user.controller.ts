@@ -30,11 +30,11 @@ import {
 import { AdminAuthGuard } from 'guards/admin-role.guard';
 import { Ticket } from 'modules/customer-support/customer-support.model';
 import { SuccessMessageDTO, UserIdRole } from 'interfaces';
+import * as path from 'path';
 import { User } from './user.model';
 import { GetUserId } from './userId.decorator';
 import { UserLoginDto, UserSignupDto, UserUpdateDto } from './dto/user.dto';
 import { UserService } from './user.service';
-import * as path from 'path';
 
 @Controller('/')
 @ApiTags('User')

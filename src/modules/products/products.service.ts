@@ -161,4 +161,9 @@ export class ProductService {
       },
     ]);
   }
+
+  // To Get Single Product
+  async getSingleProduct(productId: string): Promise<Product | null> {
+    return this.productModel.findById(productId);
+  }
 }

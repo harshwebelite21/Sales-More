@@ -18,6 +18,24 @@ export class Product extends Document {
   @Prop({ type: Number, required: true })
   category: number;
 
+  @Prop({ type: [{ url: String }] })
+  images: { url: string }[];
+
+  @Prop()
+  image: string;
+
+  @Prop()
+  company: string;
+
+  @Prop()
+  stars: number;
+
+  @Prop()
+  featured: boolean;
+
+  @Prop([String])
+  colors: string[];
+
   @Prop([
     {
       name: { type: String, required: true },
